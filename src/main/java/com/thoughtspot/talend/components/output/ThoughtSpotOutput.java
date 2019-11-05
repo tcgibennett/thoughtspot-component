@@ -220,10 +220,20 @@ public class ThoughtSpotOutput implements Serializable {
 				for (Schema.Entry entry : schema.getEntries()) {
 					for (int i = 0; i < fields.size(); i++) {
 						if (entry.getName().equalsIgnoreCase(fields.get(i))) {
-							if (entry.getType() == Schema.Type.STRING)
-								table.add(record.getString(entry.getName()), i);
-							else if (entry.getType() == Schema.Type.DOUBLE)
-								table.add(String.valueOf(record.getInt(entry.getName())), i);
+                            if (entry.getType() == Schema.Type.STRING)
+                                table.add(record.getString(entry.getName()), i);
+                            else if (entry.getType() == Schema.Type.DOUBLE)
+                                table.add(String.valueOf(record.getDouble(entry.getName())), i);
+                            else if (entry.getType() == Schema.Type.FLOAT)
+                                table.add(String.valueOf(record.getFloat(entry.getName())), i);
+                            else if (entry.getType() == Schema.Type.INT)
+                                table.add(String.valueOf(record.getInt(entry.getName())), i);
+                            else if (entry.getType() == Schema.Type.LONG)
+                                table.add(String.valueOf(record.getLong(entry.getName())), i);
+                            else if (entry.getType() == Schema.Type.BOOLEAN)
+                                table.add(String.valueOf(record.getBoolean(entry.getName())), i);
+                            else if (entry.getType() == Schema.Type.DATETIME)
+                                table.add(String.valueOf(record.getDateTime(entry.getName())), i);
 						}
 					}
 				}
