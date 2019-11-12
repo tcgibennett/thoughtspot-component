@@ -1,12 +1,11 @@
 package com.thoughtspot.talend.components.service;
 
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Hashtable;
 import java.util.LinkedHashMap;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.talend.sdk.component.api.configuration.Option;
 import org.talend.sdk.component.api.record.Schema;
 import org.talend.sdk.component.api.service.Service;
@@ -19,9 +18,12 @@ import com.thoughtspot.talend.components.dataset.ThoughtSpotDataset;
 
 @Service
 public class ThoughtspotComponentService {
-
+	private static final transient Logger LOG = LoggerFactory.getLogger(ThoughtspotComponentService.class);
     // you can put logic here you can reuse in components
-	@DiscoverSchema(family = "ThoughtSpot", value="ThoughtSpotDataset")
+
+
+
+	@DiscoverSchema("discover")
     public Schema guessTableSchema(@Option final ThoughtSpotDataset dataset, final RecordBuilderFactory factory) {
 		final Schema.Entry.Builder entryBuilder = factory.newEntryBuilder();
 		final org.talend.sdk.component.api.record.Schema.Builder schemaBuilder = factory.newSchemaBuilder(Schema.Type.RECORD);
@@ -38,9 +40,10 @@ public class ThoughtspotComponentService {
 			}
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
-			e.printStackTrace();
+			LOG.error(e.getMessage());
 		}
 		
         return schemaBuilder.build();
     }
+
 }

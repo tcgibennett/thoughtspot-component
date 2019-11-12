@@ -26,7 +26,6 @@ public class DatastoreValidationService {
 	@HealthCheck(value = "DatastoreConnection")
 	public HealthCheckStatus healthCheck(@Option ThoughtSpotDataStore conn)
 	{
-			String tv = "";
 			if (conn.getConnection())
 				return new HealthCheckStatus(HealthCheckStatus.Status.OK, "Success");
 			else

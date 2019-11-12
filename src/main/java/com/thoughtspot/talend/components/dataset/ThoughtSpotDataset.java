@@ -12,6 +12,8 @@ import java.util.List;
 import com.thoughtspot.load_utility.TSLoadUtility;
 import com.thoughtspot.talend.components.datastore.ThoughtSpotDataStore;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.talend.sdk.component.api.configuration.Option;
 import org.talend.sdk.component.api.configuration.action.Checkable;
 import org.talend.sdk.component.api.configuration.action.Suggestable;
@@ -34,6 +36,8 @@ import org.talend.sdk.component.api.record.Schema;
 })
 @Documentation("TODO fill the documentation for this configuration")
 public class ThoughtSpotDataset implements Serializable {
+    private static final transient Logger LOG = LoggerFactory.getLogger(ThoughtSpotDataset.class);
+
     @Option
     @Documentation("TODO fill the documentation for this parameter")
     private ThoughtSpotDataStore datastore;
@@ -46,11 +50,12 @@ public class ThoughtSpotDataset implements Serializable {
     @Option
     @Documentation("TODO fill the documentation for this parameter")
     private int batchSize = 10000;
-    
+
+
     @Option
-    @Structure(type = Structure.Type.IN, discoverSchema = "ThoughtSpotDataset")
+    @Structure(type = Structure.Type.IN, discoverSchema = "discover")
     @Documentation("TODO place to capture table definition")
-    private List<String> fields = new ArrayList<String>();
+    private List<String> fields;
 
     @Option
     @Documentation("Create table if does not exist")
@@ -82,6 +87,7 @@ public class ThoughtSpotDataset implements Serializable {
     	this.batchSize = batchSize;
     	return this;
     }
+
     public List<String> getFields() {
     	return fields;
     }
@@ -108,7 +114,7 @@ public class ThoughtSpotDataset implements Serializable {
     		rs = utility.getTableColumns(this.getDatastore().getDatabase(), parts[0], parts[1]);
     		utility.disconnect();
     	} catch(Exception e) {
-    		e.printStackTrace();
+    		LOG.error("TS:: " + e.getMessage());
     	}
     	
     	return rs;

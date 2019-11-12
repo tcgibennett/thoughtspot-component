@@ -31,8 +31,8 @@ public class ThoughtSpotMapper implements Serializable {
     private final RecordBuilderFactory recordBuilderFactory;
 
     public ThoughtSpotMapper(@Option("configuration") final ThoughtSpotMapperConfiguration configuration,
-                        final ThoughtspotComponentService service,
-                        final RecordBuilderFactory recordBuilderFactory) {
+                             final ThoughtspotComponentService service,
+                             final RecordBuilderFactory recordBuilderFactory) {
         this.configuration = configuration;
         this.service = service;
         this.recordBuilderFactory = recordBuilderFactory;
