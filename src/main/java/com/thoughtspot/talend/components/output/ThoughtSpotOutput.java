@@ -6,6 +6,8 @@ import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Set;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import javax.annotation.PostConstruct;
@@ -39,6 +41,7 @@ public class ThoughtSpotOutput implements Serializable {
     private TSLoadUtility tsloader = null;
     private ArrayList<String> tables = null;
     private boolean createTable = false;
+	private LinkedHashMap<String, String> ts_schema = null;
     public ThoughtSpotOutput(@Option("configuration") final ThoughtSpotOutputConfiguration configuration,
                           final ThoughtspotComponentService service) {
         this.configuration = configuration;
@@ -52,19 +55,21 @@ public class ThoughtSpotOutput implements Serializable {
         // Note: if you don't need it you can delete it
     	records = new ArrayList<Record>();
     	tsloader = TSLoadUtility.getInstance(this.configuration.getDataset().getDatastore().getHost(),this.configuration.getDataset().getDatastore().getPort(),this.configuration.getDataset().getDatastore().getUsername(),this.configuration.getDataset().getDatastore().getPassword());
-    	LOG.info("TS:: Creating New Instance of TSLoadUtility");
+    	LOG.info("ThoughtSpot::Creating New Instance of TSLoadUtility");
     	try {
-    	tsloader.connect();
-    	LOG.info("TS:: Connection Successful");
-    	tables = this.tsloader.getTables(this.configuration.getDataset().getDatastore().getDatabase());
-    	this.createTable = this.configuration.getDataset().getCreateTable();
-			LOG.info("TS:: CreateTableFlag->" + this.createTable);
-    	tsloader.setTSLoadProperties(this.configuration.getDataset().getDatastore().getDatabase(), this.configuration.getDataset().getTable().split("\\.")[1], ",");
+			tsloader.connect();
+			LOG.info("ThoughtSpot Connection Successful");
 
-    	LOG.info("TS:: set load properties");
+			this.createTable = this.configuration.getDataset().getCreateTable();
+			LOG.info("ThoughtSpot::CreateTableFlag->" + this.createTable);
+
+
+			tsloader.setTSLoadProperties(this.configuration.getDataset().getDatastore().getDatabase(), this.configuration.getDataset().getTable().split("\\.")[1], ",");
+
+			LOG.info("ThoughtSpot::Set Load Properties");
     	} catch(TSLoadUtilityException e)
     	{
-    		LOG.error("TS:: " + e.getMessage());
+    		LOG.error("TSLoadUtilityException " + e.getMessage());
     	}
     }
 
@@ -83,20 +88,30 @@ public class ThoughtSpotOutput implements Serializable {
         // output parameter and call emit(value).
 
     	this.records.add(defaultInput);
-		if (this.createTable)
+		try {
+			if (this.createTable)
+			{
+
+					tables = this.tsloader.getTables(this.configuration.getDataset().getDatastore().getDatabase());
+					boolean tableExists = false;
+					for (String table : tables) {
+						if (table.equals(this.configuration.getDataset().getTable()))
+							tableExists = true;
+					}
+					if (!tableExists)
+						this.createTableDDL(defaultInput.getSchema().getEntries());
+
+
+					this.createTable = false;
+
+
+			}
+			ts_schema = tsloader.getTableColumns(this.configuration.getDataset().getDatastore().getDatabase(),
+					this.configuration.getDataset().getTable().split("\\.")[0],
+					this.configuration.getDataset().getTable().split("\\.")[1]);
+		} catch(TSLoadUtilityException e)
 		{
-
-				boolean tableExists = false;
-				for (String table : tables)
-				{
-					if (table.equals(this.configuration.getDataset().getTable()))
-						tableExists = true;
-				}
-				if (!tableExists)
-					this.createTableDDL(defaultInput.getSchema().getEntries());
-
-
-			this.createTable = false;
+			LOG.error("TSLoadUtilityException " + e.getMessage());
 		}
     	if (records.size() == this.configuration.getDataset().getBatchSize())
     	{
@@ -123,14 +138,10 @@ public class ThoughtSpotOutput implements Serializable {
 
     private void createTableDDL(List<Schema.Entry> entries)
 	{
-		LOG.info("TS:: Create Table");
-		LOG.info("TS:: Entries " + entries.size());
+		LOG.info("ThoughtSpot::Create Table");
+		LOG.info("ThoughtSpot::Entries " + entries.size());
 		LinkedHashMap<String, String> attributes = new LinkedHashMap<>();
-		List<String> fields = this.configuration.getDataset().getFields();
-		if (fields.size() <= 0) {
-			LOG.info("TS:: No Fields");
 			for (Schema.Entry entry : entries) {
-				LOG.info("TS:: " + entry.toString());
 					if (entry.getType() == Schema.Type.STRING)
 						attributes.put(entry.getName(), "varchar(255)");
 					else if (entry.getType() == Schema.Type.DOUBLE)
@@ -146,40 +157,15 @@ public class ThoughtSpotOutput implements Serializable {
 					else if (entry.getType() == Schema.Type.DATETIME)
 						attributes.put(entry.getName(), "datetime");
 					else
-						LOG.info("TS:: " + entry.getType().name());
+						LOG.warn("ThoughtSpot Unknown DataType " + entry.getType().name());
 			}
-		} else {
-			LOG.info("TS:: With Fields");
-			for (int i = 0; i < fields.size(); i++) {
-				for (Schema.Entry entry : entries) {
-					LOG.info("TS:: " + entry.toString());
-					if (entry.getName().equals(fields.get(i))) {
-						if (entry.getType() == Schema.Type.STRING)
-							attributes.put(entry.getName(), "varchar(255)");
-						else if (entry.getType() == Schema.Type.DOUBLE)
-							attributes.put(entry.getName(), "double");
-						else if (entry.getType() == Schema.Type.FLOAT)
-							attributes.put(entry.getName(), "float");
-						else if (entry.getType() == Schema.Type.INT)
-							attributes.put(entry.getName(), "int");
-						else if (entry.getType() == Schema.Type.LONG)
-							attributes.put(entry.getName(), "bigint");
-						else if (entry.getType() == Schema.Type.BOOLEAN)
-							attributes.put(entry.getName(), "bool");
-						else if (entry.getType() == Schema.Type.DATETIME)
-							attributes.put(entry.getName(), "datetime");
-						else
-							LOG.info("TS:: " + entry.getType().name());
-					}
-				}
-			}
-		}
+
 		try {
-			LOG.info("TS:: Attempting to create Table " + this.configuration.getDataset().getTable());
+			LOG.info("ThoughtSpot::Attempting to create Table " + this.configuration.getDataset().getTable());
 			this.tsloader.createTable(attributes, this.configuration.getDataset().getTable(), this.configuration.getDataset().getDatastore().getDatabase());
-			LOG.info("TS:: " + this.configuration.getDataset().getTable() + " created successfully");
+			LOG.info("ThoughtSpot::" + this.configuration.getDataset().getTable() + " created successfully");
 		} catch(Exception e) {
-			LOG.info("TS:: " + e.getMessage());
+			LOG.info("ThoughtSpot Create Table Failed::" + e.getMessage());
 		}
 	}
 
@@ -193,51 +179,44 @@ public class ThoughtSpotOutput implements Serializable {
 
     		Schema schema = record.getSchema();
 			table = new Table(schema.getEntries().size());
-    		List<String> fields = this.configuration.getDataset().getFields();
-    		if (fields.size() <= 0)
-			{
 				int i = 0;
-				for (Schema.Entry entry : schema.getEntries()) {
-					if (entry.getType() == Schema.Type.STRING)
-						table.add(record.getString(entry.getName()), i);
-					else if (entry.getType() == Schema.Type.DOUBLE)
-						table.add(String.valueOf(record.getDouble(entry.getName())), i);
-					else if (entry.getType() == Schema.Type.FLOAT)
-						table.add(String.valueOf(record.getFloat(entry.getName())), i);
-					else if (entry.getType() == Schema.Type.INT)
-						table.add(String.valueOf(record.getInt(entry.getName())), i);
-					else if (entry.getType() == Schema.Type.LONG)
-						table.add(String.valueOf(record.getLong(entry.getName())), i);
-					else if (entry.getType() == Schema.Type.BOOLEAN)
-						table.add(String.valueOf(record.getBoolean(entry.getName())), i);
-					else if (entry.getType() == Schema.Type.DATETIME)
-						table.add(String.valueOf(record.getDateTime(entry.getName())), i);
-
-					i++;
-				}
-
-			} else {
-				for (Schema.Entry entry : schema.getEntries()) {
-					for (int i = 0; i < fields.size(); i++) {
-						if (entry.getName().equalsIgnoreCase(fields.get(i))) {
-                            if (entry.getType() == Schema.Type.STRING)
-                                table.add(record.getString(entry.getName()), i);
-                            else if (entry.getType() == Schema.Type.DOUBLE)
-                                table.add(String.valueOf(record.getDouble(entry.getName())), i);
-                            else if (entry.getType() == Schema.Type.FLOAT)
-                                table.add(String.valueOf(record.getFloat(entry.getName())), i);
-                            else if (entry.getType() == Schema.Type.INT)
-                                table.add(String.valueOf(record.getInt(entry.getName())), i);
-                            else if (entry.getType() == Schema.Type.LONG)
-                                table.add(String.valueOf(record.getLong(entry.getName())), i);
-                            else if (entry.getType() == Schema.Type.BOOLEAN)
-                                table.add(String.valueOf(record.getBoolean(entry.getName())), i);
-                            else if (entry.getType() == Schema.Type.DATETIME)
-                                table.add(String.valueOf(record.getDateTime(entry.getName())), i);
+				Set<String> keys = ts_schema.keySet();
+				for (String key : keys) {
+					for (Schema.Entry entry : schema.getEntries()) {
+						if (entry.getName().equalsIgnoreCase(key)) {
+							if (ts_schema.get(key).equalsIgnoreCase("varchar")) {
+								table.add(record.getString(entry.getName()), i++);
+								break;
+							}
+							else if (ts_schema.get(key).equalsIgnoreCase("double")) {
+								table.add(String.valueOf(record.getDouble(entry.getName())), i++);
+								break;
+							}
+							else if (ts_schema.get(key).equalsIgnoreCase("int32")) {
+								table.add(String.valueOf(record.getInt(entry.getName())), i++);
+								break;
+							}
+							else if (ts_schema.get(key).equalsIgnoreCase("float")) {
+								table.add(String.valueOf(record.getFloat(entry.getName())), i++);
+								break;
+							}
+							else if (ts_schema.get(key).equalsIgnoreCase("bigint")) {
+								table.add(String.valueOf(record.getLong(entry.getName())), i++);
+								break;
+							}
+							else if (ts_schema.get(key).equalsIgnoreCase("bool")) {
+								table.add(String.valueOf(record.getBoolean(entry.getName())), i++);
+								break;
+							}
+							else {
+								table.add(String.valueOf(record.getDateTime(entry.getName())), i++);
+								break;
+							}
 						}
 					}
 				}
-			}
+
+
     		recs.add(table.toString());
     		
     	}
@@ -245,9 +224,11 @@ public class ThoughtSpotOutput implements Serializable {
 			this.tsloader.loadData(recs);
 		} catch (TSLoadUtilityException e) {
 			// TODO Auto-generated catch block
-			LOG.error("TS:: " + e.getMessage());
+			LOG.error("TSLoadUtilityException::" + e.getMessage());
 		}
     	
     	
     }
+
+
 }

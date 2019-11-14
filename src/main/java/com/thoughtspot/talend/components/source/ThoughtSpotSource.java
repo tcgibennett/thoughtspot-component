@@ -85,7 +85,7 @@ public class ThoughtSpotSource implements Serializable {
                 for (int x = 0; x < fields.length; x++) {
                     String field = fields[x];
                     String type = schema.get(keys[x]);
-                    LOG.info("TS:: " + keys[x] + " | " + field + " | " + type);
+                    //LOG.info("TS:: " + keys[x] + " | " + field + " | " + type);
                     if (type.equalsIgnoreCase("int32"))
                         record.withInt(keys[x], Integer.valueOf(field));
                     else if (type.equalsIgnoreCase("bigint"))

@@ -31,8 +31,8 @@ import org.talend.sdk.component.api.record.Schema;
     @GridLayout.Row({ "datastore" }),
     @GridLayout.Row({ "table" }),
         @GridLayout.Row({"createTable"}),
-    @GridLayout.Row({ "batchSize" }),
-    @GridLayout.Row({ "fields" })
+    @GridLayout.Row({ "batchSize" })
+
 })
 @Documentation("TODO fill the documentation for this configuration")
 public class ThoughtSpotDataset implements Serializable {
@@ -51,12 +51,12 @@ public class ThoughtSpotDataset implements Serializable {
     @Documentation("TODO fill the documentation for this parameter")
     private int batchSize = 10000;
 
-
+/*
     @Option
     @Structure(type = Structure.Type.IN, discoverSchema = "discover")
     @Documentation("TODO place to capture table definition")
     private List<String> fields;
-
+*/
     @Option
     @Documentation("Create table if does not exist")
     private boolean createTable = false;
@@ -87,7 +87,7 @@ public class ThoughtSpotDataset implements Serializable {
     	this.batchSize = batchSize;
     	return this;
     }
-
+/*
     public List<String> getFields() {
     	return fields;
     }
@@ -96,7 +96,7 @@ public class ThoughtSpotDataset implements Serializable {
     	this.fields = fields;
     	return this;
     }
-
+*/
     public boolean getCreateTable() { return createTable; }
 
     public ThoughtSpotDataset setCreateTable(boolean createTable)

@@ -110,7 +110,7 @@ public class ThoughtSpotDataStore implements Serializable {
     		flag = true;
     	} catch(TSLoadUtilityException e)
     	{
-    		
+    		e.printStackTrace();
     	} 
     	if (flag) conn.disconnect();
     	return flag;
