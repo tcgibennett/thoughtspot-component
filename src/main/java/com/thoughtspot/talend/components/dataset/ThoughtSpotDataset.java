@@ -4,10 +4,7 @@ import java.io.Serializable;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.Statement;
-import java.util.ArrayList;
-import java.util.Hashtable;
-import java.util.LinkedHashMap;
-import java.util.List;
+import java.util.*;
 
 import com.thoughtspot.load_utility.TSLoadUtility;
 import com.thoughtspot.talend.components.datastore.ThoughtSpotDataStore;
@@ -28,10 +25,9 @@ import org.talend.sdk.component.api.record.Schema;
 @GridLayout({
     // the generated layout put one configuration entry per line,
     // customize it as much as needed
-    @GridLayout.Row({ "datastore" }),
-    @GridLayout.Row({ "table" }),
-        @GridLayout.Row({"createTable"}),
-    @GridLayout.Row({ "batchSize" })
+        @GridLayout.Row({ "datastore" }),
+        @GridLayout.Row({ "table" }),
+        @GridLayout.Row({"createTable"})
 
 })
 @Documentation("TODO fill the documentation for this configuration")
@@ -47,15 +43,13 @@ public class ThoughtSpotDataset implements Serializable {
     @Documentation("TODO fill the documentation for this parameter")
     private String table;
     
-    @Option
-    @Documentation("TODO fill the documentation for this parameter")
-    private int batchSize = 10000;
+
 
 /*
     @Option
-    @Structure(type = Structure.Type.IN, discoverSchema = "discover")
+    @Structure(type = Structure.Type.OUT, discoverSchema = "discover",value="ThoughtSpot")
     @Documentation("TODO place to capture table definition")
-    private List<String> fields;
+    private List<String> fields = new ArrayList<>();
 */
     @Option
     @Documentation("Create table if does not exist")
@@ -79,14 +73,7 @@ public class ThoughtSpotDataset implements Serializable {
         return this;
     }
     
-    public int getBatchSize() {
-    	return batchSize;
-    }
-    
-    public ThoughtSpotDataset setBatchSize(int batchSize) {
-    	this.batchSize = batchSize;
-    	return this;
-    }
+
 /*
     public List<String> getFields() {
     	return fields;

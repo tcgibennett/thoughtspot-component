@@ -22,8 +22,8 @@ public class ThoughtspotComponentService {
     // you can put logic here you can reuse in components
 
 
-
-	@DiscoverSchema("discover")
+/*
+	@DiscoverSchema(family = "ThoughtSpot",value = "discover")
     public Schema guessTableSchema(@Option final ThoughtSpotDataset dataset, final RecordBuilderFactory factory) {
 		final Schema.Entry.Builder entryBuilder = factory.newEntryBuilder();
 		final org.talend.sdk.component.api.record.Schema.Builder schemaBuilder = factory.newSchemaBuilder(Schema.Type.RECORD);
@@ -35,7 +35,7 @@ public class ThoughtspotComponentService {
 			{
 				if (rs.get(key).equalsIgnoreCase("varchar"))
 					schemaBuilder.withEntry(entryBuilder.withName(key).withType(Schema.Type.STRING).build());
-				else if (rs.get(key).contains("int"))
+				else if (rs.get(key).contains("int32"))
 					schemaBuilder.withEntry(entryBuilder.withName(key).withType(Schema.Type.INT).build());
 			}
 		} catch (Exception e) {
@@ -45,5 +45,5 @@ public class ThoughtspotComponentService {
 		
         return schemaBuilder.build();
     }
-
+*/
 }

@@ -30,7 +30,7 @@ import com.thoughtspot.load_utility.TSLoadUtilityException;
 import com.thoughtspot.talend.components.service.ThoughtspotComponentService;
 
 @Version(1) // default version is 1, if some configuration changes happen between 2 versions you can add a migrationHandler
-@Icon(Icon.IconType.STAR) // you can use a custom one using @Icon(value=CUSTOM, custom="filename") and adding icons/filename.svg in resources
+@Icon(value = Icon.IconType.CUSTOM, custom = "ThoughtSpot") // you can use a custom one using @Icon(value=CUSTOM, custom="filename") and adding icons/filename.svg in resources
 @Processor(name = "Output")
 @Documentation("TODO fill the documentation for this processor")
 public class ThoughtSpotOutput implements Serializable {
@@ -106,24 +106,25 @@ public class ThoughtSpotOutput implements Serializable {
 
 
 			}
-			ts_schema = tsloader.getTableColumns(this.configuration.getDataset().getDatastore().getDatabase(),
-					this.configuration.getDataset().getTable().split("\\.")[0],
-					this.configuration.getDataset().getTable().split("\\.")[1]);
+			if (ts_schema == null) {
+				ts_schema = tsloader.getTableColumns(this.configuration.getDataset().getDatastore().getDatabase(),
+						this.configuration.getDataset().getTable().split("\\.")[0],
+						this.configuration.getDataset().getTable().split("\\.")[1]);
+				LOG.info("TS_SCHEMA::" + ts_schema.size());
+			}
 		} catch(TSLoadUtilityException e)
 		{
 			LOG.error("TSLoadUtilityException " + e.getMessage());
 		}
-    	if (records.size() == this.configuration.getDataset().getBatchSize())
-    	{
-    		this.insertRecords(records);
-    		this.records.clear();
-    	}
+
     }
 
     @AfterGroup
     public void afterGroup() {
         // symmetric method of the beforeGroup() executed after the chunk processing
         // Note: if you don't need it you can delete it
+		this.insertRecords(records);
+		this.records.clear();
     }
 
     @PreDestroy
@@ -182,41 +183,48 @@ public class ThoughtSpotOutput implements Serializable {
 				int i = 0;
 				Set<String> keys = ts_schema.keySet();
 				for (String key : keys) {
+
 					for (Schema.Entry entry : schema.getEntries()) {
 						if (entry.getName().equalsIgnoreCase(key)) {
 							if (ts_schema.get(key).equalsIgnoreCase("varchar")) {
 								table.add(record.getString(entry.getName()), i++);
+								//System.out.println(key +"--"+ts_schema.get(key)+"--"+entry.getType());
 								break;
 							}
 							else if (ts_schema.get(key).equalsIgnoreCase("double")) {
-								table.add(String.valueOf(record.getDouble(entry.getName())), i++);
+								table.add(String.valueOf(record.getInt(entry.getName())), i++);
+								//System.out.println(key +"--"+ts_schema.get(key)+"--"+entry.getType());
 								break;
 							}
 							else if (ts_schema.get(key).equalsIgnoreCase("int32")) {
 								table.add(String.valueOf(record.getInt(entry.getName())), i++);
+								//System.out.println(key +"--"+ts_schema.get(key)+"--"+entry.getType());
 								break;
 							}
 							else if (ts_schema.get(key).equalsIgnoreCase("float")) {
 								table.add(String.valueOf(record.getFloat(entry.getName())), i++);
+								//System.out.println(key +"--"+ts_schema.get(key)+"--"+entry.getType());
 								break;
 							}
 							else if (ts_schema.get(key).equalsIgnoreCase("bigint")) {
 								table.add(String.valueOf(record.getLong(entry.getName())), i++);
+								System.out.println(key +"--"+ts_schema.get(key)+"--"+entry.getType());
 								break;
 							}
 							else if (ts_schema.get(key).equalsIgnoreCase("bool")) {
 								table.add(String.valueOf(record.getBoolean(entry.getName())), i++);
+								//System.out.println(key +"--"+ts_schema.get(key)+"--"+entry.getType());
 								break;
 							}
 							else {
 								table.add(String.valueOf(record.getDateTime(entry.getName())), i++);
+								//System.out.println(key +"--"+ts_schema.get(key)+"--"+entry.getType());
 								break;
 							}
 						}
 					}
 				}
-
-
+			System.out.println(table.toString());
     		recs.add(table.toString());
     		
     	}

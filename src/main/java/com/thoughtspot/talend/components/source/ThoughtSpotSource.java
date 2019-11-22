@@ -4,12 +4,15 @@ import java.io.Serializable;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.*;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 
 import com.thoughtspot.load_utility.TSLoadUtility;
 import com.thoughtspot.load_utility.TSLoadUtilityException;
+import com.thoughtspot.load_utility.TSReader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.talend.sdk.component.api.configuration.Option;
@@ -31,6 +34,8 @@ public class ThoughtSpotSource implements Serializable {
     private ResultSet rs = null;
     private LinkedHashMap<String, String> schema;
     private LinkedHashSet<String> records;
+    private TSReader tsReader = null;
+    private ExecutorService executorService = Executors.newSingleThreadExecutor();
 
     public ThoughtSpotSource(@Option("configuration") final ThoughtSpotMapperConfiguration configuration,
                              final ThoughtspotComponentService service,
@@ -52,8 +57,8 @@ public class ThoughtSpotSource implements Serializable {
             schema = tsLoadUtility.getTableColumns(this.configuration.getDataset().getDatastore().getDatabase(),
                     this.configuration.getDataset().getTable().split("\\.")[0],
                     this.configuration.getDataset().getTable().split("\\.")[1]);
-            records = tsLoadUtility.retrieve(this.configuration.getDataset().getDatastore().getDatabase(),
-                    this.configuration.getDataset().getTable());
+            //tsLoadUtility.retrieve(this.configuration.getDataset().getDatastore().getDatabase(),
+                    //this.configuration.getDataset().getTable(), null);
             LOG.info("TS:: pull from ThoughtSpot Table " + this.configuration.getDataset().getTable() +" success!");
         } catch(TSLoadUtilityException e)
         {
@@ -69,19 +74,30 @@ public class ThoughtSpotSource implements Serializable {
         //
         // return null means the dataset has no more data to go through
         // you can use the builderFactory to create a new Record.
-        if (records.isEmpty()) {
-            LOG.info("TS:: Records Empty");
-            return null;
+        if (tsReader == null)
+        {
+            tsReader = TSReader.newInstance();
+            executorService.execute(new Runnable() {
+                @Override
+                public void run() {
+                    tsLoadUtility.retrieve(configuration.getDataset().getDatastore().getDatabase(),
+                            configuration.getDataset().getTable(), tsReader);
+                    Thread.yield();
+                }
+            });
         }
-        else {
-            LOG.info("TS:: Processing Records for Sample");
-            Iterator<String> itr = records.iterator();
-            Record.Builder record = builderFactory.newRecordBuilder();
-            String[] keys = schema.keySet().toArray(new String[0]);
-            String line = null;
-            while (itr.hasNext()) {
-                line = itr.next();
-                String[] fields = line.split("\\|");
+
+        Record.Builder record = builderFactory.newRecordBuilder();
+        String[] keys = schema.keySet().toArray(new String[0]);
+
+        String result = null;
+        while(true)
+        {
+            result = tsReader.poll();
+
+            if (result != null)
+            {
+                String[] fields = result.split("\\|");
                 for (int x = 0; x < fields.length; x++) {
                     String field = fields[x];
                     String type = schema.get(keys[x]);
@@ -101,11 +117,19 @@ public class ThoughtSpotSource implements Serializable {
                     // TODO: Need to add for DateTime and Timestamp
 
                 }
-                break;
+                return record.build();
+            } else if (tsReader.getIsCompleted())
+            {
+                LOG.info("Done Reading Records");
+                executorService.shutdown();
+                return null;
+            } else {
+                try {
+                    Thread.sleep(10);
+                } catch (InterruptedException e) {
+                    LOG.error(e.getMessage());
+                }
             }
-
-            records.remove(line);
-            return record.build();
         }
     }
 

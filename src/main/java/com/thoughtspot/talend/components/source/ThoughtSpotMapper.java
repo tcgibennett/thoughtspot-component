@@ -22,7 +22,7 @@ import com.thoughtspot.talend.components.service.ThoughtspotComponentService;
 // this class role is to enable the work to be distributed in environments supporting it.
 //
 @Version(1) // default version is 1, if some configuration changes happen between 2 versions you can add a migrationHandler
-@Icon(Icon.IconType.STAR) // you can use a custom one using @Icon(value=CUSTOM, custom="filename") and adding icons/filename.svg in resources
+@Icon(value = Icon.IconType.CUSTOM, custom = "ThoughtSpot") // you can use a custom one using @Icon(value=CUSTOM, custom="filename") and adding icons/filename.svg in resources
 @PartitionMapper(name = "Input")
 @Documentation("TODO fill the documentation for this mapper")
 public class ThoughtSpotMapper implements Serializable {
