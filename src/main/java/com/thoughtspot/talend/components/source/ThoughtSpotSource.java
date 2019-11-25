@@ -3,6 +3,9 @@ package com.thoughtspot.talend.components.source;
 import java.io.Serializable;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -114,7 +117,35 @@ public class ThoughtSpotSource implements Serializable {
                         record.withString(keys[x], field);
                     else if (type.equalsIgnoreCase("bool"))
                         record.withBoolean(keys[x], Boolean.valueOf(field));
-                    // TODO: Need to add for DateTime and Timestamp
+                    else if (type.equalsIgnoreCase("date")) {
+                        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyyMMdd");
+                        try {
+                            record.withDateTime(keys[x], dateFormat.parse(field));
+                        } catch(ParseException e)
+                        {
+                            LOG.error("ThoughtSpot:Date:"+e.getMessage());
+                        }
+                    }
+                    else if (type.equalsIgnoreCase("datetime"))
+                    {
+                        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyyMMdd HH:mm:ss");
+                        try {
+                            record.withDateTime(keys[x], dateFormat.parse(field));
+                        } catch(ParseException e)
+                        {
+                            LOG.error("ThoughtSpot:DateTime:"+e.getMessage());
+                        }
+                    }
+                    else if (type.equalsIgnoreCase("time"))
+                    {
+                        SimpleDateFormat dateFormat = new SimpleDateFormat("HH:mm:ss");
+                        try {
+                            record.withDateTime(keys[x], dateFormat.parse(field));
+                        } catch(ParseException e)
+                        {
+                            LOG.error("ThoughtSpot:Time:"+e.getMessage());
+                        }
+                    }
 
                 }
                 return record.build();

@@ -216,6 +216,13 @@ public class ThoughtSpotOutput implements Serializable {
 								//System.out.println(key +"--"+ts_schema.get(key)+"--"+entry.getType());
 								break;
 							}
+							else if (ts_schema.get(key).equalsIgnoreCase("date") ||
+									ts_schema.get(key).equalsIgnoreCase("datetime") ||
+									ts_schema.get(key).equalsIgnoreCase("time")) {
+								table.add(String.valueOf(record.getDateTime(entry.getName())), i++);
+								//System.out.println(key +"--"+ts_schema.get(key)+"--"+entry.getType());
+								break;
+							}
 							else {
 								table.add(String.valueOf(record.getDateTime(entry.getName())), i++);
 								//System.out.println(key +"--"+ts_schema.get(key)+"--"+entry.getType());
