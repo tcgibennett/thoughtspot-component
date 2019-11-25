@@ -22,6 +22,7 @@ import org.talend.sdk.component.api.configuration.Option;
 import org.talend.sdk.component.api.input.Producer;
 import org.talend.sdk.component.api.meta.Documentation;
 import org.talend.sdk.component.api.record.Record;
+import org.talend.sdk.component.api.record.Schema;
 import org.talend.sdk.component.api.service.record.RecordBuilderFactory;
 
 
@@ -118,9 +119,10 @@ public class ThoughtSpotSource implements Serializable {
                     else if (type.equalsIgnoreCase("bool"))
                         record.withBoolean(keys[x], Boolean.valueOf(field));
                     else if (type.equalsIgnoreCase("date")) {
-                        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyyMMdd");
+                        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
                         try {
                             record.withDateTime(keys[x], dateFormat.parse(field));
+
                         } catch(ParseException e)
                         {
                             LOG.error("ThoughtSpot:Date:"+e.getMessage());
@@ -128,7 +130,7 @@ public class ThoughtSpotSource implements Serializable {
                     }
                     else if (type.equalsIgnoreCase("datetime"))
                     {
-                        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyyMMdd HH:mm:ss");
+                        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
                         try {
                             record.withDateTime(keys[x], dateFormat.parse(field));
                         } catch(ParseException e)
