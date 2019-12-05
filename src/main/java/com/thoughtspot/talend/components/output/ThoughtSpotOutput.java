@@ -7,7 +7,10 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
+import com.thoughtspot.load_utility.TSReader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import javax.annotation.PostConstruct;
@@ -42,6 +45,9 @@ public class ThoughtSpotOutput implements Serializable {
     private ArrayList<String> tables = null;
     private boolean createTable = false;
 	private LinkedHashMap<String, String> ts_schema = null;
+	private TSReader tsReader = null;
+	private List<ExecutorService> threads = new ArrayList<ExecutorService>();
+	private List<TSLoadUtility> loaders = new ArrayList<TSLoadUtility>();
     public ThoughtSpotOutput(@Option("configuration") final ThoughtSpotOutputConfiguration configuration,
                           final ThoughtspotComponentService service) {
         this.configuration = configuration;
@@ -55,7 +61,8 @@ public class ThoughtSpotOutput implements Serializable {
         // Note: if you don't need it you can delete it
     	records = new ArrayList<Record>();
     	tsloader = TSLoadUtility.getInstance(this.configuration.getDataset().getDatastore().getHost(),this.configuration.getDataset().getDatastore().getPort(),this.configuration.getDataset().getDatastore().getUsername(),this.configuration.getDataset().getDatastore().getPassword());
-    	LOG.info("ThoughtSpot::Creating New Instance of TSLoadUtility");
+
+		LOG.info("ThoughtSpot::Creating New Instance of TSLoadUtility");
     	try {
 			tsloader.connect();
 			LOG.info("ThoughtSpot Connection Successful");
@@ -71,6 +78,41 @@ public class ThoughtSpotOutput implements Serializable {
     	{
     		LOG.error("TSLoadUtilityException " + e.getMessage());
     	}
+		tsReader = TSReader.newInstance();
+		for (int x = 0; x < this.configuration.getDataset().getDatastore().getLoaderProcesses(); x++)
+		{
+			threads.add(Executors.newSingleThreadExecutor());
+			TSLoadUtility tsLoadUtility = TSLoadUtility.getInstance(this.configuration.getDataset().getDatastore().getHost(),this.configuration.getDataset().getDatastore().getPort(),this.configuration.getDataset().getDatastore().getUsername(),this.configuration.getDataset().getDatastore().getPassword());
+			try {
+				tsLoadUtility.connect();
+				tsLoadUtility.setTSLoadProperties(this.configuration.getDataset().getDatastore().getDatabase(), this.configuration.getDataset().getTable().split("\\.")[1], ",");
+			} catch (TSLoadUtilityException e) {
+				System.out.println(e.getMessage());
+			}
+
+			loaders.add(tsLoadUtility);
+		}
+
+
+		for (ExecutorService executorService : threads)
+		{
+			executorService.execute(new Runnable() {
+				@Override
+				public void run() {
+					try {
+						TSLoadUtility loadUtility = loaders.remove(0);
+						loadUtility.loadData(tsReader);
+						loadUtility.disconnect();
+					} catch (TSLoadUtilityException e) {
+						System.out.println(e.getMessage());
+					}
+					//Thread.yield();
+				}
+			});
+
+		}
+		//private ExecutorService executorService = Executors.newSingleThreadExecutor();
+
     }
 
     @BeforeGroup
@@ -88,6 +130,7 @@ public class ThoughtSpotOutput implements Serializable {
         // output parameter and call emit(value).
 
     	this.records.add(defaultInput);
+
 		try {
 			if (this.createTable)
 			{
@@ -116,7 +159,7 @@ public class ThoughtSpotOutput implements Serializable {
 		{
 			LOG.error("TSLoadUtilityException " + e.getMessage());
 		}
-
+		//this.insertRecord(defaultInput);
     }
 
     @AfterGroup
@@ -134,6 +177,18 @@ public class ThoughtSpotOutput implements Serializable {
         // Note: if you don't need it you can delete it
     	if (this.records.size() > 0)
     		this.insertRecords(records);
+
+		this.tsReader.setIsCompleted(true);
+		while(!this.tsReader.done())
+		{
+			try {
+				Thread.sleep(1000);
+			} catch (InterruptedException e) {
+				System.out.println(e.getMessage());
+			}
+		}
+		for (ExecutorService executorService : threads)
+			executorService.shutdown();
     	this.tsloader.disconnect();
     }
 
@@ -208,7 +263,7 @@ public class ThoughtSpotOutput implements Serializable {
 							}
 							else if (ts_schema.get(key).equalsIgnoreCase("bigint")) {
 								table.add(String.valueOf(record.getLong(entry.getName())), i++);
-								System.out.println(key +"--"+ts_schema.get(key)+"--"+entry.getType());
+								//System.out.println(key +"--"+ts_schema.get(key)+"--"+entry.getType());
 								break;
 							}
 							else if (ts_schema.get(key).equalsIgnoreCase("bool")) {
@@ -231,17 +286,20 @@ public class ThoughtSpotOutput implements Serializable {
 						}
 					}
 				}
-			System.out.println(table.toString());
-    		recs.add(table.toString());
+			//System.out.println(table.toString());
+    		//recs.add(table.toString());
+				this.tsReader.add(table.toString());
     		
     	}
+
+    	/*
     	try {
 			this.tsloader.loadData(recs);
 		} catch (TSLoadUtilityException e) {
 			// TODO Auto-generated catch block
 			LOG.error("TSLoadUtilityException::" + e.getMessage());
 		}
-    	
+    	*/
     	
     }
 

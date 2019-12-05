@@ -29,6 +29,9 @@ import com.thoughtspot.load_utility.TSLoadUtilityException;
     @GridLayout.Row({ "username" }),
     @GridLayout.Row({ "password" })
 })
+@GridLayout(names = GridLayout.FormType.ADVANCED, value = {
+        @GridLayout.Row("loaderProcesses")
+})
 @Checkable("DatastoreConnection")
 @Documentation("TODO fill the documentation for this configuration")
 public class ThoughtSpotDataStore implements Serializable {
@@ -54,6 +57,10 @@ public class ThoughtSpotDataStore implements Serializable {
     @Option
     @Documentation("TODO fill the documentation for this parameter")
     private String password;
+
+    @Option
+    @Documentation("TODO")
+    private int loaderProcesses = 25;
 
     public String getHost() {
         return host;
@@ -99,7 +106,16 @@ public class ThoughtSpotDataStore implements Serializable {
         this.password = password;
         return this;
     }
-    
+
+    public int getLoaderProcesses() {
+        return loaderProcesses;
+    }
+
+    public ThoughtSpotDataStore setLoaderProcesses(int loaderProcesses) {
+        this.loaderProcesses = loaderProcesses;
+        return this;
+    }
+
     public boolean getConnection()
     {
     	TSLoadUtility conn = null;
