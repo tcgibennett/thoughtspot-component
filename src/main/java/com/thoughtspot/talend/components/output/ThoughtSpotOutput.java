@@ -87,7 +87,7 @@ public class ThoughtSpotOutput implements Serializable {
 				tsLoadUtility.connect();
 				tsLoadUtility.setTSLoadProperties(this.configuration.getDataset().getDatastore().getDatabase(), this.configuration.getDataset().getTable().split("\\.")[1], ",");
 			} catch (TSLoadUtilityException e) {
-				System.out.println(e.getMessage());
+				LOG.error(e.getMessage());
 			}
 
 			loaders.add(tsLoadUtility);
@@ -104,7 +104,7 @@ public class ThoughtSpotOutput implements Serializable {
 						loadUtility.loadData(tsReader);
 						loadUtility.disconnect();
 					} catch (TSLoadUtilityException e) {
-						System.out.println(e.getMessage());
+						LOG.error(e.getMessage());
 					}
 					//Thread.yield();
 				}
