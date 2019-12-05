@@ -23,15 +23,14 @@ import com.thoughtspot.load_utility.TSLoadUtilityException;
 @GridLayout({
     // the generated layout put one configuration entry per line,
     // customize it as much as needed
-    @GridLayout.Row({ "host" }),
-    @GridLayout.Row({ "database" }),
-    @GridLayout.Row({ "port" }),
-    @GridLayout.Row({ "username" }),
-    @GridLayout.Row({ "password" })
-})
-@GridLayout(names = GridLayout.FormType.ADVANCED, value = {
+        @GridLayout.Row({ "host" }),
+        @GridLayout.Row({ "database" }),
+        @GridLayout.Row({ "port" }),
+        @GridLayout.Row({ "username" }),
+        @GridLayout.Row({ "password" }),
         @GridLayout.Row("loaderProcesses")
 })
+
 @Checkable("DatastoreConnection")
 @Documentation("TODO fill the documentation for this configuration")
 public class ThoughtSpotDataStore implements Serializable {
@@ -60,7 +59,7 @@ public class ThoughtSpotDataStore implements Serializable {
 
     @Option
     @Documentation("TODO")
-    private int loaderProcesses = 25;
+    private int loaderProcesses = 50;
 
     public String getHost() {
         return host;

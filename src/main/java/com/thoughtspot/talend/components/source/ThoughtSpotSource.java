@@ -80,7 +80,7 @@ public class ThoughtSpotSource implements Serializable {
         // you can use the builderFactory to create a new Record.
         if (tsReader == null)
         {
-            tsReader = TSReader.newInstance();
+            tsReader = TSReader.newInstance(0);
             executorService.execute(new Runnable() {
                 @Override
                 public void run() {

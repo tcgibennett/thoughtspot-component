@@ -78,7 +78,7 @@ public class ThoughtSpotOutput implements Serializable {
     	{
     		LOG.error("TSLoadUtilityException " + e.getMessage());
     	}
-		tsReader = TSReader.newInstance();
+		tsReader = TSReader.newInstance(500000);
 		for (int x = 0; x < this.configuration.getDataset().getDatastore().getLoaderProcesses(); x++)
 		{
 			threads.add(Executors.newSingleThreadExecutor());
@@ -101,7 +101,7 @@ public class ThoughtSpotOutput implements Serializable {
 				public void run() {
 					try {
 						TSLoadUtility loadUtility = loaders.remove(0);
-						loadUtility.loadData(tsReader);
+						loadUtility.loadData(tsReader,2000);
 						loadUtility.disconnect();
 					} catch (TSLoadUtilityException e) {
 						LOG.error(e.getMessage());
