@@ -11,6 +11,7 @@ import java.util.List;
 import org.talend.sdk.component.api.configuration.Option;
 import org.talend.sdk.component.api.configuration.action.Checkable;
 import org.talend.sdk.component.api.configuration.type.DataStore;
+import org.talend.sdk.component.api.configuration.ui.DefaultValue;
 import org.talend.sdk.component.api.configuration.ui.layout.GridLayout;
 import org.talend.sdk.component.api.configuration.ui.widget.Credential;
 import org.talend.sdk.component.api.meta.Documentation;
@@ -28,7 +29,9 @@ import com.thoughtspot.load_utility.TSLoadUtilityException;
         @GridLayout.Row({ "port" }),
         @GridLayout.Row({ "username" }),
         @GridLayout.Row({ "password" }),
-        @GridLayout.Row("loaderProcesses")
+        @GridLayout.Row("loaderProcesses"),
+        @GridLayout.Row("loaderCommit"),
+        @GridLayout.Row("loaderBlock")
 })
 
 @Checkable("DatastoreConnection")
@@ -59,7 +62,15 @@ public class ThoughtSpotDataStore implements Serializable {
 
     @Option
     @Documentation("TODO")
-    private int loaderProcesses = 50;
+    private int loaderProcesses = 10;
+
+    @Option
+    @Documentation("TODO")
+    private int loaderCommit = 1000;
+
+    @Option
+    @Documentation("TODO")
+    private int loaderBlock = 500000;
 
     public String getHost() {
         return host;
@@ -112,6 +123,24 @@ public class ThoughtSpotDataStore implements Serializable {
 
     public ThoughtSpotDataStore setLoaderProcesses(int loaderProcesses) {
         this.loaderProcesses = loaderProcesses;
+        return this;
+    }
+
+    public int getLoaderCommit() {
+        return loaderCommit;
+    }
+
+    public ThoughtSpotDataStore setLoaderCommit(int loaderCommit) {
+        this.loaderCommit = loaderCommit;
+        return this;
+    }
+
+    public int getLoaderBlock() {
+        return loaderBlock;
+    }
+
+    public ThoughtSpotDataStore setLoaderBlock(int loaderBlock) {
+        this.loaderBlock = loaderBlock;
         return this;
     }
 
