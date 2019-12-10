@@ -48,6 +48,7 @@ public class ThoughtSpotOutput implements Serializable {
 	private TSReader tsReader = null;
 	private List<ExecutorService> threads = new ArrayList<ExecutorService>();
 	private List<TSLoadUtility> loaders = new ArrayList<TSLoadUtility>();
+	private final int _MAX_TSLOADER_THREADS = 5;
     public ThoughtSpotOutput(@Option("configuration") final ThoughtSpotOutputConfiguration configuration,
                           final ThoughtspotComponentService service) {
         this.configuration = configuration;
@@ -78,8 +79,8 @@ public class ThoughtSpotOutput implements Serializable {
     	{
     		LOG.error("TSLoadUtilityException " + e.getMessage());
     	}
-		tsReader = TSReader.newInstance(this.configuration.getDataset().getDatastore().getLoaderBlock());
-		for (int x = 0; x < this.configuration.getDataset().getDatastore().getLoaderProcesses(); x++)
+		tsReader = TSReader.newInstance();
+		for (int x = 0; x < _MAX_TSLOADER_THREADS; x++)
 		{
 			threads.add(Executors.newSingleThreadExecutor());
 			TSLoadUtility tsLoadUtility = TSLoadUtility.getInstance(this.configuration.getDataset().getDatastore().getHost(),this.configuration.getDataset().getDatastore().getPort(),this.configuration.getDataset().getDatastore().getUsername(),this.configuration.getDataset().getDatastore().getPassword());
@@ -101,7 +102,7 @@ public class ThoughtSpotOutput implements Serializable {
 				public void run() {
 					try {
 						TSLoadUtility loadUtility = loaders.remove(0);
-						loadUtility.loadData(tsReader,configuration.getDataset().getDatastore().getLoaderCommit());
+						loadUtility.loadData(tsReader,2000);
 						loadUtility.disconnect();
 					} catch (TSLoadUtilityException e) {
 						LOG.error(e.getMessage());

@@ -28,10 +28,7 @@ import com.thoughtspot.load_utility.TSLoadUtilityException;
         @GridLayout.Row({ "database" }),
         @GridLayout.Row({ "port" }),
         @GridLayout.Row({ "username" }),
-        @GridLayout.Row({ "password" }),
-        @GridLayout.Row("loaderProcesses"),
-        @GridLayout.Row("loaderCommit"),
-        @GridLayout.Row("loaderBlock")
+        @GridLayout.Row({ "password" })
 })
 
 @Checkable("DatastoreConnection")
@@ -60,17 +57,6 @@ public class ThoughtSpotDataStore implements Serializable {
     @Documentation("TODO fill the documentation for this parameter")
     private String password;
 
-    @Option
-    @Documentation("TODO")
-    private int loaderProcesses = 10;
-
-    @Option
-    @Documentation("TODO")
-    private int loaderCommit = 1000;
-
-    @Option
-    @Documentation("TODO")
-    private int loaderBlock = 500000;
 
     public String getHost() {
         return host;
@@ -117,32 +103,6 @@ public class ThoughtSpotDataStore implements Serializable {
         return this;
     }
 
-    public int getLoaderProcesses() {
-        return loaderProcesses;
-    }
-
-    public ThoughtSpotDataStore setLoaderProcesses(int loaderProcesses) {
-        this.loaderProcesses = loaderProcesses;
-        return this;
-    }
-
-    public int getLoaderCommit() {
-        return loaderCommit;
-    }
-
-    public ThoughtSpotDataStore setLoaderCommit(int loaderCommit) {
-        this.loaderCommit = loaderCommit;
-        return this;
-    }
-
-    public int getLoaderBlock() {
-        return loaderBlock;
-    }
-
-    public ThoughtSpotDataStore setLoaderBlock(int loaderBlock) {
-        this.loaderBlock = loaderBlock;
-        return this;
-    }
 
     public boolean getConnection()
     {
