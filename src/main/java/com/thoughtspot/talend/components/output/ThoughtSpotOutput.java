@@ -199,6 +199,7 @@ public class ThoughtSpotOutput implements Serializable {
 		LOG.info("ThoughtSpot::Entries " + entries.size());
 		LinkedHashMap<String, String> attributes = new LinkedHashMap<>();
 			for (Schema.Entry entry : entries) {
+				if (!entry.getName().equals("hashCodeDirty")) {
 					if (entry.getType() == Schema.Type.STRING)
 						attributes.put(entry.getName(), "varchar(255)");
 					else if (entry.getType() == Schema.Type.DOUBLE)
@@ -215,6 +216,7 @@ public class ThoughtSpotOutput implements Serializable {
 						attributes.put(entry.getName(), "datetime");
 					else
 						LOG.warn("ThoughtSpot Unknown DataType " + entry.getType().name());
+				}
 			}
 
 		try {
@@ -235,54 +237,50 @@ public class ThoughtSpotOutput implements Serializable {
     		rec = new StringBuilder();
 
     		Schema schema = record.getSchema();
-			table = new Table(schema.getEntries().size());
+
 				int i = 0;
 				Set<String> keys = ts_schema.keySet();
+			table = new Table(keys.size());
 				for (String key : keys) {
 
 					for (Schema.Entry entry : schema.getEntries()) {
-						if (entry.getName().equalsIgnoreCase(key)) {
-							if (ts_schema.get(key).equalsIgnoreCase("varchar")) {
-								table.add(record.getString(entry.getName()), i++);
-								//System.out.println(key +"--"+ts_schema.get(key)+"--"+entry.getType());
-								break;
-							}
-							else if (ts_schema.get(key).equalsIgnoreCase("double")) {
-								table.add(String.valueOf(record.getInt(entry.getName())), i++);
-								//System.out.println(key +"--"+ts_schema.get(key)+"--"+entry.getType());
-								break;
-							}
-							else if (ts_schema.get(key).equalsIgnoreCase("int32")) {
-								table.add(String.valueOf(record.getInt(entry.getName())), i++);
-								//System.out.println(key +"--"+ts_schema.get(key)+"--"+entry.getType());
-								break;
-							}
-							else if (ts_schema.get(key).equalsIgnoreCase("float")) {
-								table.add(String.valueOf(record.getFloat(entry.getName())), i++);
-								//System.out.println(key +"--"+ts_schema.get(key)+"--"+entry.getType());
-								break;
-							}
-							else if (ts_schema.get(key).equalsIgnoreCase("bigint")) {
-								table.add(String.valueOf(record.getLong(entry.getName())), i++);
-								//System.out.println(key +"--"+ts_schema.get(key)+"--"+entry.getType());
-								break;
-							}
-							else if (ts_schema.get(key).equalsIgnoreCase("bool")) {
-								table.add(String.valueOf(record.getBoolean(entry.getName())), i++);
-								//System.out.println(key +"--"+ts_schema.get(key)+"--"+entry.getType());
-								break;
-							}
-							else if (ts_schema.get(key).equalsIgnoreCase("date") ||
-									ts_schema.get(key).equalsIgnoreCase("datetime") ||
-									ts_schema.get(key).equalsIgnoreCase("time")) {
-								table.add(String.valueOf(record.getDateTime(entry.getName())), i++);
-								//System.out.println(key +"--"+ts_schema.get(key)+"--"+entry.getType());
-								break;
-							}
-							else {
-								table.add(String.valueOf(record.getDateTime(entry.getName())), i++);
-								//System.out.println(key +"--"+ts_schema.get(key)+"--"+entry.getType());
-								break;
+						if (!entry.getName().equals("hashDirtyCode")) {
+							if (entry.getName().equalsIgnoreCase(key)) {
+								if (ts_schema.get(key).equalsIgnoreCase("varchar")) {
+									table.add(record.getString(entry.getName()), i++);
+									//System.out.println(key +"--"+ts_schema.get(key)+"--"+entry.getType());
+									break;
+								} else if (ts_schema.get(key).equalsIgnoreCase("double")) {
+									table.add(String.valueOf(record.getInt(entry.getName())), i++);
+									//System.out.println(key +"--"+ts_schema.get(key)+"--"+entry.getType());
+									break;
+								} else if (ts_schema.get(key).equalsIgnoreCase("int32")) {
+									table.add(String.valueOf(record.getInt(entry.getName())), i++);
+									//System.out.println(key +"--"+ts_schema.get(key)+"--"+entry.getType());
+									break;
+								} else if (ts_schema.get(key).equalsIgnoreCase("float")) {
+									table.add(String.valueOf(record.getFloat(entry.getName())), i++);
+									//System.out.println(key +"--"+ts_schema.get(key)+"--"+entry.getType());
+									break;
+								} else if (ts_schema.get(key).equalsIgnoreCase("bigint")) {
+									table.add(String.valueOf(record.getLong(entry.getName())), i++);
+									//System.out.println(key +"--"+ts_schema.get(key)+"--"+entry.getType());
+									break;
+								} else if (ts_schema.get(key).equalsIgnoreCase("bool")) {
+									table.add(String.valueOf(record.getBoolean(entry.getName())), i++);
+									//System.out.println(key +"--"+ts_schema.get(key)+"--"+entry.getType());
+									break;
+								} else if (ts_schema.get(key).equalsIgnoreCase("date") ||
+										ts_schema.get(key).equalsIgnoreCase("datetime") ||
+										ts_schema.get(key).equalsIgnoreCase("time")) {
+									table.add(String.valueOf(record.getDateTime(entry.getName())), i++);
+									//System.out.println(key +"--"+ts_schema.get(key)+"--"+entry.getType());
+									break;
+								} else {
+									table.add(String.valueOf(record.getDateTime(entry.getName())), i++);
+									//System.out.println(key +"--"+ts_schema.get(key)+"--"+entry.getType());
+									break;
+								}
 							}
 						}
 					}
