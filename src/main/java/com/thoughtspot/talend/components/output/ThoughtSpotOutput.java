@@ -3,6 +3,7 @@ package com.thoughtspot.talend.components.output;
 import java.io.Serializable;
 import java.sql.Connection;
 import java.sql.Statement;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -49,6 +50,7 @@ public class ThoughtSpotOutput implements Serializable {
 	private List<ExecutorService> threads = new ArrayList<ExecutorService>();
 	private List<TSLoadUtility> loaders = new ArrayList<TSLoadUtility>();
 	private final int _MAX_TSLOADER_THREADS = 5;
+	private boolean truncateTable = false;
     public ThoughtSpotOutput(@Option("configuration") final ThoughtSpotOutputConfiguration configuration,
                           final ThoughtspotComponentService service) {
         this.configuration = configuration;
@@ -62,7 +64,7 @@ public class ThoughtSpotOutput implements Serializable {
         // Note: if you don't need it you can delete it
     	records = new ArrayList<Record>();
     	tsloader = TSLoadUtility.getInstance(this.configuration.getDataset().getDatastore().getHost(),this.configuration.getDataset().getDatastore().getPort(),this.configuration.getDataset().getDatastore().getUsername(),this.configuration.getDataset().getDatastore().getPassword());
-
+		this.truncateTable = configuration.getTruncate();
 		LOG.info("ThoughtSpot::Creating New Instance of TSLoadUtility");
     	try {
 			tsloader.connect();
@@ -148,7 +150,14 @@ public class ThoughtSpotOutput implements Serializable {
 
 					this.createTable = false;
 
+			}
 
+			if (this.truncateTable)
+			{
+
+				this.tsloader.truncateTable(this.configuration.getDataset().getDatastore().getDatabase(),
+						this.configuration.getDataset().getTable());
+				this.truncateTable = false;
 			}
 			if (ts_schema == null) {
 				ts_schema = tsloader.getTableColumns(this.configuration.getDataset().getDatastore().getDatabase(),
@@ -199,9 +208,10 @@ public class ThoughtSpotOutput implements Serializable {
 		LOG.info("ThoughtSpot::Entries " + entries.size());
 		LinkedHashMap<String, String> attributes = new LinkedHashMap<>();
 			for (Schema.Entry entry : entries) {
-				if (!entry.getName().equals("hashCodeDirty")) {
+
+				if (!entry.getName().equals("hashCodeDirty") && !entry.getName().equals("loopKey")) {
 					if (entry.getType() == Schema.Type.STRING)
-						attributes.put(entry.getName(), "varchar(255)");
+						attributes.put(entry.getName().trim().replaceAll("\\b",""), "varchar(255)");
 					else if (entry.getType() == Schema.Type.DOUBLE)
 						attributes.put(entry.getName(), "double");
 					else if (entry.getType() == Schema.Type.FLOAT)
@@ -244,7 +254,7 @@ public class ThoughtSpotOutput implements Serializable {
 				for (String key : keys) {
 
 					for (Schema.Entry entry : schema.getEntries()) {
-						if (!entry.getName().equals("hashDirtyCode")) {
+						if (!entry.getName().equals("hashDirtyCode") && !entry.getName().equals("loopKey")) {
 							if (entry.getName().equalsIgnoreCase(key)) {
 								if (ts_schema.get(key).equalsIgnoreCase("varchar")) {
 									table.add(record.getString(entry.getName()), i++);
@@ -273,7 +283,7 @@ public class ThoughtSpotOutput implements Serializable {
 								} else if (ts_schema.get(key).equalsIgnoreCase("date") ||
 										ts_schema.get(key).equalsIgnoreCase("datetime") ||
 										ts_schema.get(key).equalsIgnoreCase("time")) {
-									table.add(String.valueOf(record.getDateTime(entry.getName())), i++);
+									table.add(record.getDateTime(entry.getName()).toLocalDateTime().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME).replace('T', ' '), i++);
 									//System.out.println(key +"--"+ts_schema.get(key)+"--"+entry.getType());
 									break;
 								} else {

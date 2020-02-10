@@ -15,7 +15,8 @@ import org.talend.sdk.component.api.service.record.RecordBuilderFactory;
 @GridLayout({
     // the generated layout put one configuration entry per line,
     // customize it as much as needed
-    @GridLayout.Row({ "dataset" })
+    @GridLayout.Row({ "dataset" }),
+        @GridLayout.Row({"truncate"})
 })
 @Documentation("TODO fill the documentation for this configuration")
 public class ThoughtSpotOutputConfiguration implements Serializable {
@@ -27,12 +28,26 @@ public class ThoughtSpotOutputConfiguration implements Serializable {
     @Documentation("TODO fill the documentation for this parameter")
     private ThoughtSpotDataset dataset;
 
+    @Option
+    @Documentation("Truncate target table before load")
+    private boolean truncate;
+
     public ThoughtSpotDataset getDataset() {
         return dataset;
     }
 
     public ThoughtSpotOutputConfiguration setDataset(ThoughtSpotDataset dataset) {
         this.dataset = dataset;
+        return this;
+    }
+
+    public boolean getTruncate() {
+        return truncate;
+    }
+
+    public ThoughtSpotOutputConfiguration setTruncate(boolean truncate)
+    {
+        this.truncate = truncate;
         return this;
     }
 
