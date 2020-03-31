@@ -1,1 +1,10 @@
 /target/
+/.idea/
+/.mvn/
+/.settings/
+.DS_Store
+.classpath
+.project
+mvnw
+mvnw.cmd
+thoughtspot-component.iml
