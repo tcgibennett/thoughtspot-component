@@ -14,13 +14,16 @@ On the same machine as your Talend Studio
 2. Install [Maven](https://maven.apache.org/download.cgi)
 
 ### Build and Deploy ###
-1. git clone https://github.com/tcgibennett/thoughtspot-component.git
-2. cd into thoughtspot-component directory
-3. mvn clean install
-4. mvn talend-component:deploy-in-studio -Dtalend.component.studioHome="<Path to Talend Studio>"
+1. git clone https://github.com/Talend/thoughtspot-component.git
+2. git clone https://github.com/Talend/load-utility.git
+3. cd into load-utility directory
+4. mvn clean install
+5. cd into thoughtspot-component directory
+6. mvn clean install
+7. mvn talend-component:deploy-in-studio -Dtalend.component.studioHome="<Path to Talend Studio>"
 EX: /Applications/TalendStudio-7.2.1/studio
-5. Edit <Path to Talend Studio>/configuration/config.ini and add the following at the end of the file **talend.component.server.icon.paths=icons/%s_icon32.png,icons/png/%s_icon32.png**
-6. Start or Restart Talend Studio
+8. Edit <Path to Talend Studio>/configuration/config.ini and add the following at the end of the file **talend.component.server.icon.paths=icons/%s_icon32.png,icons/png/%s_icon32.png**
+9. Start or Restart Talend Studio
 
 ## Documentation ##
 ### MemSQLTableNameInput
