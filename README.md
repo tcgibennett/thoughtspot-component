@@ -26,9 +26,6 @@ EX: /Applications/TalendStudio-7.2.1/studio
 9. Start or Restart Talend Studio
 
 ## Documentation ##
-### MemSQLTableNameInput
-
-Executes a DB query with a strictly defined order which must correspond to the schema definition.
 
 
 ### ThoughtSpotOutput ###
