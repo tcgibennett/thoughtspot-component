@@ -37,7 +37,7 @@ ThoughtSpotOutput connects to a given ThoughtSpot instance and bulk loads in tha
 
 #### ThoughtSpotOutput Standard properties
 
-These properties are used to configure MemSQLOutput running in the Standard Job framework.
+These properties are used to configure ThoughtSpotOutput running in the Standard Job framework.
 
 The Standard ThoughtSpotOutput component belongs to the Business Intelligence family.
 
