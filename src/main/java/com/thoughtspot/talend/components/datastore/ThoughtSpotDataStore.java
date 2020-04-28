@@ -10,6 +10,10 @@ import java.util.List;
 
 import org.talend.sdk.component.api.configuration.Option;
 import org.talend.sdk.component.api.configuration.action.Checkable;
+import org.talend.sdk.component.api.configuration.action.Suggestable;
+import org.talend.sdk.component.api.configuration.condition.ActiveIfs;
+import org.talend.sdk.component.api.configuration.condition.ActiveIf;
+import org.talend.sdk.component.api.configuration.condition.ActiveIfs.Operator;
 import org.talend.sdk.component.api.configuration.type.DataStore;
 import org.talend.sdk.component.api.configuration.ui.DefaultValue;
 import org.talend.sdk.component.api.configuration.ui.layout.GridLayout;
@@ -25,7 +29,6 @@ import com.thoughtspot.load_utility.TSLoadUtilityException;
     // the generated layout put one configuration entry per line,
     // customize it as much as needed
         @GridLayout.Row({ "host" }),
-        @GridLayout.Row({ "database" }),
         @GridLayout.Row({ "port" }),
         @GridLayout.Row({ "username" }),
         @GridLayout.Row({ "password" })
@@ -37,26 +40,23 @@ public class ThoughtSpotDataStore implements Serializable {
 	
 	
     @Option
-    @Documentation("TODO fill the documentation for this parameter")
+    @Documentation("The host or ip of ThoughtSpot server")
     private String host;
     
     @Option
-    @Documentation("TODO fill the documentation for this parameter")
-    private String database;
-
-    @Option
-    @Documentation("TODO fill the documentation for this parameter")
+    @Documentation("The ssh port of ThoughtSpot server")
     private int port = 22;
 
     @Option
-    @Documentation("TODO fill the documentation for this parameter")
+    @Documentation("The ssh username of ThoughtSpot server")
     private String username;
 
     @Credential
     @Option
-    @Documentation("TODO fill the documentation for this parameter")
+    @Documentation("The ssh password of the ThoughtSpot server")
     private String password;
 
+    
 
     public String getHost() {
         return host;
@@ -67,14 +67,7 @@ public class ThoughtSpotDataStore implements Serializable {
         return this;
     }
     
-    public String getDatabase() {
-        return database;
-    }
-
-    public ThoughtSpotDataStore setDatabase(String database) {
-        this.database = database;
-        return this;
-    }
+   
     
     public int getPort() {
         return port;
@@ -120,12 +113,12 @@ public class ThoughtSpotDataStore implements Serializable {
     	return flag;
     }
     
-    public List<SuggestionValues.Item> getTables() {
+    public List<SuggestionValues.Item> getTables(String database, String schema) {
     	List<SuggestionValues.Item> tables = new ArrayList<SuggestionValues.Item>();
     	try {
     		TSLoadUtility conn = TSLoadUtility.getInstance(this.getHost(),this.port, this.getUsername(), this.getPassword());
     		conn.connect();
-    		ArrayList<String> rs = conn.getTables(this.getDatabase());
+    		ArrayList<String> rs = conn.getTables(database, schema);
     		for (String table : rs)
     		{
     		    tables.add(new SuggestionValues.Item(table,table));
@@ -136,5 +129,42 @@ public class ThoughtSpotDataStore implements Serializable {
     	}
     	
     	return tables;
+    }
+
+    public List<SuggestionValues.Item> getDatabases() {
+    	List<SuggestionValues.Item> databases = new ArrayList<SuggestionValues.Item>();
+    	try {
+    		TSLoadUtility conn = TSLoadUtility.getInstance(this.getHost(),this.port, this.getUsername(), this.getPassword());
+    		conn.connect();
+    		ArrayList<String> rs = conn.getDatabases();
+    		for (String database : rs)
+    		{
+    		    databases.add(new SuggestionValues.Item(database,database));
+    		}
+    		conn.disconnect();	
+    	} catch(Exception e) {
+    		e.printStackTrace();
+    	}
+    	
+    	return databases;
+    }
+
+
+    public List<SuggestionValues.Item> getSchemas(String database) {
+    	List<SuggestionValues.Item> schemas = new ArrayList<SuggestionValues.Item>();
+    	try {
+    		TSLoadUtility conn = TSLoadUtility.getInstance(this.getHost(),this.port, this.getUsername(), this.getPassword());
+    		conn.connect();
+    		ArrayList<String> rs = conn.getSchemas(database);
+    		for (String schema : rs)
+    		{
+    		    schemas.add(new SuggestionValues.Item(schema,schema));
+    		}
+    		conn.disconnect();	
+    	} catch(Exception e) {
+    		e.printStackTrace();
+    	}
+    	
+    	return schemas;
     }
 }

@@ -11,7 +11,8 @@ import org.talend.sdk.component.api.record.Schema;
 import org.talend.sdk.component.api.service.Service;
 import org.talend.sdk.component.api.service.record.RecordBuilderFactory;
 import org.talend.sdk.component.api.service.schema.DiscoverSchema;
-
+import org.talend.sdk.component.api.service.completion.SuggestionValues;
+import org.talend.sdk.component.api.service.completion.Suggestions;
 import com.thoughtspot.talend.components.dataset.ThoughtSpotDataset;
 
 
@@ -22,28 +23,19 @@ public class ThoughtspotComponentService {
     // you can put logic here you can reuse in components
 
 
-/*
-	@DiscoverSchema(family = "ThoughtSpot",value = "discover")
-    public Schema guessTableSchema(@Option final ThoughtSpotDataset dataset, final RecordBuilderFactory factory) {
-		final Schema.Entry.Builder entryBuilder = factory.newEntryBuilder();
-		final org.talend.sdk.component.api.record.Schema.Builder schemaBuilder = factory.newSchemaBuilder(Schema.Type.RECORD);
+	@Suggestions("showBooleanRepresentation")
+	public static SuggestionValues listBooleanRepresentation()
+	{
+		ArrayList<SuggestionValues.Item> items = new ArrayList<SuggestionValues.Item>();
+		SuggestionValues values = new SuggestionValues();
+		items.add(new SuggestionValues.Item("true_false","true_false"));
+		items.add(new SuggestionValues.Item("1_0","1_0"));
+		items.add(new SuggestionValues.Item("T_F","T_F"));
+		items.add(new SuggestionValues.Item("Y_N","Y_N"));
+
+		values.setItems(items);
+
 		
-		Collection<Schema.Entry> entries = new ArrayList<Schema.Entry>();
-		try {
-			LinkedHashMap<String, String> rs = dataset.getTableColumns();
-			for(String key : rs.keySet())
-			{
-				if (rs.get(key).equalsIgnoreCase("varchar"))
-					schemaBuilder.withEntry(entryBuilder.withName(key).withType(Schema.Type.STRING).build());
-				else if (rs.get(key).contains("int32"))
-					schemaBuilder.withEntry(entryBuilder.withName(key).withType(Schema.Type.INT).build());
-			}
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			LOG.error(e.getMessage());
-		}
-		
-        return schemaBuilder.build();
-    }
-*/
+		return values;
+	}
 }

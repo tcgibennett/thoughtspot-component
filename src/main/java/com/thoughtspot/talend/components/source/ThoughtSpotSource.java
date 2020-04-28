@@ -58,9 +58,9 @@ public class ThoughtSpotSource implements Serializable {
                 this.configuration.getDataset().getDatastore().getPassword());
         try {
             tsLoadUtility.connect();
-            schema = tsLoadUtility.getTableColumns(this.configuration.getDataset().getDatastore().getDatabase(),
-                    this.configuration.getDataset().getTable().split("\\.")[0],
-                    this.configuration.getDataset().getTable().split("\\.")[1]);
+            schema = tsLoadUtility.getTableColumns(this.configuration.getDataset().getDatabase(),
+                    this.configuration.getDataset().getSchema(),
+                    this.configuration.getDataset().getTable());
             //tsLoadUtility.retrieve(this.configuration.getDataset().getDatastore().getDatabase(),
                     //this.configuration.getDataset().getTable(), null);
             LOG.info("TS:: pull from ThoughtSpot Table " + this.configuration.getDataset().getTable() +" success!");
@@ -84,7 +84,7 @@ public class ThoughtSpotSource implements Serializable {
             executorService.execute(new Runnable() {
                 @Override
                 public void run() {
-                    tsLoadUtility.retrieve(configuration.getDataset().getDatastore().getDatabase(),
+                    tsLoadUtility.retrieve(configuration.getDataset().getDatabase(),
                             configuration.getDataset().getTable(), tsReader);
                     Thread.yield();
                 }

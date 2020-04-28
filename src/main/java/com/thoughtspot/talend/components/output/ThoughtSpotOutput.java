@@ -44,7 +44,9 @@ public class ThoughtSpotOutput implements Serializable {
     private List<Record> records = null;
     private TSLoadUtility tsloader = null;
     private ArrayList<String> tables = null;
-    private boolean createTable = false;
+	private boolean createTable = false;
+	private boolean createDatabase = false;
+	private boolean createSchema = false;
 	private LinkedHashMap<String, String> ts_schema = null;
 	private TSReader tsReader = null;
 	private List<ExecutorService> threads = new ArrayList<ExecutorService>();
@@ -65,6 +67,7 @@ public class ThoughtSpotOutput implements Serializable {
     	records = new ArrayList<Record>();
     	tsloader = TSLoadUtility.getInstance(this.configuration.getDataset().getDatastore().getHost(),this.configuration.getDataset().getDatastore().getPort(),this.configuration.getDataset().getDatastore().getUsername(),this.configuration.getDataset().getDatastore().getPassword());
 		this.truncateTable = configuration.getTruncate();
+		
 		LOG.info("ThoughtSpot::Creating New Instance of TSLoadUtility");
     	try {
 			tsloader.connect();
@@ -72,9 +75,31 @@ public class ThoughtSpotOutput implements Serializable {
 
 			this.createTable = this.configuration.getDataset().getCreateTable();
 			LOG.info("ThoughtSpot::CreateTableFlag->" + this.createTable);
+			
+			this.createDatabase = this.configuration.getDataset().getCreateDatabase();
+			LOG.info("ThoughtSpot::CreateDatabaseFlag->" + this.createDatabase);
+			if (this.createDatabase)
+			{
+				ArrayList<String> databases = tsloader.getDatabases();
+				if (!databases.contains(this.configuration.getDataset().getDatabase()))
+					tsloader.createDatabase(this.configuration.getDataset().getDatabase());
+			}
+			
+			this.createSchema = this.configuration.getDataset().getCreateSchema();
+			LOG.info("ThoughtSpot::CreateSchemaFlag->" + this.createSchema);
+			if (this.createSchema)
+			{
+				ArrayList<String> schemas = tsloader.getSchemas(this.configuration.getDataset().getDatabase());
+				if (!schemas.contains(this.configuration.getDataset().getSchema()))
+					tsloader.createSchema(this.configuration.getDataset().getDatabase(), this.configuration.getDataset().getSchema());
+			}
 
-
-			tsloader.setTSLoadProperties(this.configuration.getDataset().getDatastore().getDatabase(), this.configuration.getDataset().getTable().split("\\.")[1], ",");
+			tsloader.setTSLoadProperties(this.configuration.getDataset().getDatabase(), 
+			this.configuration.getDataset().getSchema(), this.configuration.getDataset().getTable(), 
+			this.configuration.getMaxIgnoredRows(), this.configuration.getBadRecordsFile(),
+			this.configuration.getDateFormat(), this.configuration.getDateTimeFormat(), 
+			this.configuration.getTimeFormat(), this.configuration.getVerbosity(), this.configuration.skipSecondFraction(),
+			",", this.configuration.getDateConvertedToEpoch(), this.configuration.getBooleanRepresentation());
 
 			LOG.info("ThoughtSpot::Set Load Properties");
     	} catch(TSLoadUtilityException e)
@@ -88,7 +113,13 @@ public class ThoughtSpotOutput implements Serializable {
 			TSLoadUtility tsLoadUtility = TSLoadUtility.getInstance(this.configuration.getDataset().getDatastore().getHost(),this.configuration.getDataset().getDatastore().getPort(),this.configuration.getDataset().getDatastore().getUsername(),this.configuration.getDataset().getDatastore().getPassword());
 			try {
 				tsLoadUtility.connect();
-				tsLoadUtility.setTSLoadProperties(this.configuration.getDataset().getDatastore().getDatabase(), this.configuration.getDataset().getTable().split("\\.")[1], ",");
+				tsLoadUtility.setTSLoadProperties(this.configuration.getDataset().getDatabase(), 
+				this.configuration.getDataset().getSchema(), this.configuration.getDataset().getTable(), 
+				this.configuration.getMaxIgnoredRows(), this.configuration.getBadRecordsFile(),
+				this.configuration.getDateFormat(), this.configuration.getDateTimeFormat(), 
+				this.configuration.getTimeFormat(), this.configuration.getVerbosity(), this.configuration.skipSecondFraction(),
+				",", this.configuration.getDateConvertedToEpoch(), this.configuration.getBooleanRepresentation());
+
 			} catch (TSLoadUtilityException e) {
 				LOG.error(e.getMessage());
 			}
@@ -138,7 +169,7 @@ public class ThoughtSpotOutput implements Serializable {
 			if (this.createTable)
 			{
 
-					tables = this.tsloader.getTables(this.configuration.getDataset().getDatastore().getDatabase());
+					tables = this.tsloader.getTables(this.configuration.getDataset().getDatabase(), this.configuration.getDataset().getSchema());
 					boolean tableExists = false;
 					for (String table : tables) {
 						if (table.equals(this.configuration.getDataset().getTable()))
@@ -155,14 +186,14 @@ public class ThoughtSpotOutput implements Serializable {
 			if (this.truncateTable)
 			{
 
-				this.tsloader.truncateTable(this.configuration.getDataset().getDatastore().getDatabase(),
+				this.tsloader.truncateTable(this.configuration.getDataset().getDatabase(),this.configuration.getDataset().getSchema(),
 						this.configuration.getDataset().getTable());
 				this.truncateTable = false;
 			}
 			if (ts_schema == null) {
-				ts_schema = tsloader.getTableColumns(this.configuration.getDataset().getDatastore().getDatabase(),
-						this.configuration.getDataset().getTable().split("\\.")[0],
-						this.configuration.getDataset().getTable().split("\\.")[1]);
+				ts_schema = tsloader.getTableColumns(this.configuration.getDataset().getDatabase(),
+						this.configuration.getDataset().getSchema(),
+						this.configuration.getDataset().getTable());
 				LOG.info("TS_SCHEMA::" + ts_schema.size());
 			}
 		} catch(TSLoadUtilityException e)
@@ -231,7 +262,7 @@ public class ThoughtSpotOutput implements Serializable {
 
 		try {
 			LOG.info("ThoughtSpot::Attempting to create Table " + this.configuration.getDataset().getTable());
-			this.tsloader.createTable(attributes, this.configuration.getDataset().getTable(), this.configuration.getDataset().getDatastore().getDatabase());
+			this.tsloader.createTable(attributes, this.configuration.getDataset().getSchema(), this.configuration.getDataset().getTable(), this.configuration.getDataset().getDatabase());
 			LOG.info("ThoughtSpot::" + this.configuration.getDataset().getTable() + " created successfully");
 		} catch(Exception e) {
 			LOG.info("ThoughtSpot Create Table Failed::" + e.getMessage());

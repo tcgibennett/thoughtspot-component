@@ -35,11 +35,33 @@ public class DatastoreValidationService {
 	
 	
 	@Suggestions("showTables")
-	public static SuggestionValues listTables(@Option ThoughtSpotDataStore datastore)
+	public static SuggestionValues listTables(@Option ThoughtSpotDataStore datastore,
+	@Option String database, @Option String schema)
 	{
 		
 		SuggestionValues values = new SuggestionValues();
-		values.setItems(datastore.getTables());
+		values.setItems(datastore.getTables(database, schema));
+		
+		return values;
+	}
+
+	@Suggestions("showSchemas")
+	public static SuggestionValues listSchemas(@Option ThoughtSpotDataStore datastore,
+	@Option String database)
+	{
+		
+		SuggestionValues values = new SuggestionValues();
+		values.setItems(datastore.getSchemas(database));
+		
+		return values;
+	}
+
+	@Suggestions("showDatabases")
+	public static SuggestionValues listDatabases(@Option ThoughtSpotDataStore datastore)
+	{
+		
+		SuggestionValues values = new SuggestionValues();
+		values.setItems(datastore.getDatabases());
 		
 		return values;
 	}

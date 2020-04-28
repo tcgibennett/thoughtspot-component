@@ -26,8 +26,10 @@ import org.talend.sdk.component.api.record.Schema;
     // the generated layout put one configuration entry per line,
     // customize it as much as needed
         @GridLayout.Row({ "datastore" }),
+        @GridLayout.Row({"database"}),
+        @GridLayout.Row({"schema"}),
         @GridLayout.Row({ "table" }),
-        @GridLayout.Row({"createTable"})
+        @GridLayout.Row({"createDatabase","createSchema","createTable"})
 
 })
 @Documentation("TODO fill the documentation for this configuration")
@@ -39,21 +41,31 @@ public class ThoughtSpotDataset implements Serializable {
     private ThoughtSpotDataStore datastore;
 
     @Option
-    @Suggestable(value = "showTables", parameters = {"datastore"})
-    @Documentation("TODO fill the documentation for this parameter")
+    @Suggestable(value = "showSchemas", parameters = {"datastore", "database"})
+    @Documentation("Displays a list of schemas for given database")
+    private String schema = "falcon_default_schema";
+
+    @Option
+    @Suggestable(value = "showTables", parameters = {"datastore", "database","schema"})
+    @Documentation("Displays a list of tables for selected schema")
     private String table;
     
-
-
-/*
     @Option
-    @Structure(type = Structure.Type.OUT, discoverSchema = "discover",value="ThoughtSpot")
-    @Documentation("TODO place to capture table definition")
-    private List<String> fields = new ArrayList<>();
-*/
+    @Suggestable(value = "showDatabases", parameters = {"datastore"})
+    @Documentation("The database in ThoughtSpot server for this user")
+    private String database;
+
     @Option
     @Documentation("Create table if does not exist")
     private boolean createTable = false;
+
+    @Option
+    @Documentation("Create Schema if does not exist")
+    private boolean createSchema = false;
+
+    @Option
+    @Documentation("Create Database if does not exist")
+    private boolean createDatabase = false;
 
     public ThoughtSpotDataStore getDatastore() {
         return datastore;
@@ -61,6 +73,24 @@ public class ThoughtSpotDataset implements Serializable {
 
     public ThoughtSpotDataset setDatastore(ThoughtSpotDataStore datastore) {
         this.datastore = datastore;
+        return this;
+    }
+
+    public String getSchema() {
+        return schema;
+    }
+
+    public String getDatabase() {
+        return database;
+    }
+
+    public ThoughtSpotDataset setDatabase(String database) {
+        this.database = database;
+        return this;
+    }
+
+    public ThoughtSpotDataset setSchema(String schema) {
+        this.schema = schema;
         return this;
     }
 
@@ -72,18 +102,7 @@ public class ThoughtSpotDataset implements Serializable {
         this.table = table;
         return this;
     }
-    
 
-/*
-    public List<String> getFields() {
-    	return fields;
-    }
-    
-    public ThoughtSpotDataset setFields(List<String> fields) {
-    	this.fields = fields;
-    	return this;
-    }
-*/
     public boolean getCreateTable() { return createTable; }
 
     public ThoughtSpotDataset setCreateTable(boolean createTable)
@@ -92,13 +111,28 @@ public class ThoughtSpotDataset implements Serializable {
         return this;
     }
 
+    public boolean getCreateDatabase() { return createDatabase; }
+
+    public ThoughtSpotDataset setCreateDatabase(boolean createDatabase)
+    {
+        this.createDatabase = createDatabase;
+        return this;
+    }
+
+    public boolean getCreateSchema() { return createSchema; }
+
+    public ThoughtSpotDataset setCreateSchema(boolean createSchema)
+    {
+        this.createSchema = createSchema;
+        return this;
+    }
+
     public LinkedHashMap<String, String> getTableColumns() {
     	TSLoadUtility utility = TSLoadUtility.getInstance(this.getDatastore().getHost(), this.getDatastore().getPort(), this.getDatastore().getUsername(), this.getDatastore().getPassword());
     	LinkedHashMap<String, String> rs = null;
     	try {
     		utility.connect();
-    		String[] parts = this.getTable().split("\\.");
-    		rs = utility.getTableColumns(this.getDatastore().getDatabase(), parts[0], parts[1]);
+    		rs = utility.getTableColumns(this.getDatabase(), this.getSchema(), this.getTable());
     		utility.disconnect();
     	} catch(Exception e) {
     		LOG.error("TS:: " + e.getMessage());
