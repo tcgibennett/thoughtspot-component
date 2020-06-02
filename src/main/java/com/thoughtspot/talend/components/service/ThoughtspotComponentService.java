@@ -13,7 +13,10 @@ import org.talend.sdk.component.api.service.record.RecordBuilderFactory;
 import org.talend.sdk.component.api.service.schema.DiscoverSchema;
 import org.talend.sdk.component.api.service.completion.SuggestionValues;
 import org.talend.sdk.component.api.service.completion.Suggestions;
+
+import com.thoughtspot.load_utility.TSLoadUtility;
 import com.thoughtspot.talend.components.dataset.ThoughtSpotDataset;
+import com.thoughtspot.talend.components.datastore.ThoughtSpotDataStore;
 
 
 
@@ -38,4 +41,45 @@ public class ThoughtspotComponentService {
 		
 		return values;
 	}
+
+	
+    
+    
+
+    
+
+
+    
+	
+	public LinkedHashMap<String, String> getTableColumns(ThoughtSpotDataset dataset) {
+    	TSLoadUtility utility = TSLoadUtility.getInstance(dataset.getDatastore().getHost(), dataset.getDatastore().getPort(), dataset.getDatastore().getUsername(), dataset.getDatastore().getPassword());
+    	LinkedHashMap<String, String> rs = null;
+    	try {
+    		utility.connect();
+    		rs = utility.getTableColumns(dataset.getDatabase(), dataset.getSchema(), dataset.getTable());
+    		utility.disconnect();
+    	} catch(Exception e) {
+    		LOG.error("TS:: " + e.getMessage());
+    	}
+    	
+    	return rs;
+    }
+    
+    
+    
+    private String getColumnNames(Schema schema)
+    {
+    	StringBuilder buff = new StringBuilder();
+    	int i = 1;
+		for (Schema.Entry entry : schema.getEntries())
+		{
+			if (i == schema.getEntries().size())
+				buff.append(entry.getName());
+			else
+				buff.append(entry.getName()+",");
+			i++;
+		}
+		
+		return buff.toString();
+    }
 }

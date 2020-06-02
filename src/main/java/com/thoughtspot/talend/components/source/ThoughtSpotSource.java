@@ -84,8 +84,13 @@ public class ThoughtSpotSource implements Serializable {
             executorService.execute(new Runnable() {
                 @Override
                 public void run() {
+                    try {
                     tsLoadUtility.retrieve(configuration.getDataset().getDatabase(),
                             configuration.getDataset().getTable(), tsReader);
+                    } catch(TSLoadUtilityException e)
+                    {
+                        throw new IllegalStateException(e.getMessage());
+                    }
                     Thread.yield();
                 }
             });

@@ -56,7 +56,7 @@ public class TSLoadUtility {
 	    	session.connect();
 	    	this.session = session;
 		} catch(JSchException e) {
-			throw new TSLoadUtilityException(e.getMessage());
+			throw new TSLoadUtilityException(e.getMessage(), e);
 		}
 	}
 	
@@ -141,7 +141,7 @@ Channel channel=session.openChannel("shell");
 			return columns;
 		} catch(JSchException | IOException | InterruptedException e)
 		{
-			throw new TSLoadUtilityException(e.getMessage());
+			throw new TSLoadUtilityException(e.getMessage(), e);
 		}
 	}
 
@@ -168,11 +168,11 @@ Channel channel=session.openChannel("shell");
 			String output = new String(baos.toByteArray()).replaceAll("\r", "");
 			LOG.info("TSLU:: " + output);
 			if (!output.contains("Statement executed successfully."))
-				throw new TSLoadUtilityException(output);
+				throw new TSLoadUtilityException(output, new Exception(output));
 			channel.disconnect();
 		} catch(JSchException | IOException | InterruptedException e) {
 			LOG.error("TSLU:: " + e.getMessage());
-			throw new TSLoadUtilityException(e.getMessage());
+			throw new TSLoadUtilityException(e.getMessage(),e);
 		}
 	}
 	public void createDatabase(String database) throws TSLoadUtilityException
@@ -198,11 +198,11 @@ Channel channel=session.openChannel("shell");
 			String output = new String(baos.toByteArray()).replaceAll("\r", "");
 			LOG.info("TSLU:: " + output);
 			if (!output.contains("Statement executed successfully."))
-				throw new TSLoadUtilityException(output);
+				throw new TSLoadUtilityException(output, new Exception(output));
 			channel.disconnect();
 		} catch(JSchException | IOException | InterruptedException e) {
 			LOG.error("TSLU:: " + e.getMessage());
-			throw new TSLoadUtilityException(e.getMessage());
+			throw new TSLoadUtilityException(e.getMessage(),e);
 		}
 	}
 
@@ -229,11 +229,11 @@ Channel channel=session.openChannel("shell");
 			String output = new String(baos.toByteArray()).replaceAll("\r", "");
 			LOG.info("TSLU:: " + output);
 			if (!output.contains("Statement executed successfully."))
-				throw new TSLoadUtilityException(output);
+				throw new TSLoadUtilityException(output, new Exception(output));
 			channel.disconnect();
 		} catch(JSchException | IOException | InterruptedException e) {
 			LOG.error("TSLU:: " + e.getMessage());
-			throw new TSLoadUtilityException(e.getMessage());
+			throw new TSLoadUtilityException(e.getMessage(),e);
 		}
 	}
 
@@ -269,11 +269,11 @@ Channel channel=session.openChannel("shell");
 			String output = new String(baos.toByteArray()).replaceAll("\r", "");
 			LOG.info("TSLU:: " + output);
 				if (!output.contains("Statement executed successfully."))
-					throw new TSLoadUtilityException(output);
+					throw new TSLoadUtilityException(output, new Exception(output));
 			channel.disconnect();
 		} catch(JSchException | IOException | InterruptedException e) {
 			LOG.error("TSLU:: " + e.getMessage());
-			throw new TSLoadUtilityException(e.getMessage());
+			throw new TSLoadUtilityException(e.getMessage(),e);
 		}
 	}
 	
@@ -319,7 +319,7 @@ Channel channel=session.openChannel("shell");
 	        return tables;
 		} catch(JSchException | IOException | InterruptedException e)
 		{
-			throw new TSLoadUtilityException(e.getMessage());
+			throw new TSLoadUtilityException(e.getMessage(),e);
 		}
 	}
 
@@ -365,7 +365,7 @@ Channel channel=session.openChannel("shell");
 	        return tables;
 		} catch(JSchException | IOException | InterruptedException e)
 		{
-			throw new TSLoadUtilityException(e.getMessage());
+			throw new TSLoadUtilityException(e.getMessage(), e);
 		}
 	}
 
@@ -412,7 +412,7 @@ Channel channel=session.openChannel("shell");
 	        return tables;
 		} catch(JSchException | IOException | InterruptedException e)
 		{
-			throw new TSLoadUtilityException(e.getMessage());
+			throw new TSLoadUtilityException(e.getMessage(), e);
 		}
 	}
 	
@@ -465,6 +465,7 @@ Channel channel=session.openChannel("shell");
 					((ChannelExec) channel).setErrStream(System.err);
 
 					PipedOutputStream pos = new PipedOutputStream();
+					// 131072 is for the PIS to process 128 KB of data at a time
 					PipedInputStream pis = new PipedInputStream(pos, 131072);
 					channel.setInputStream(pis);
 
@@ -541,14 +542,14 @@ Channel channel=session.openChannel("shell");
 							}
 						}
 						if (!isSuccess)
-							throw new TSLoadUtilityException(errors.toString());
+							throw new TSLoadUtilityException(errors.toString(),  new Exception(errors.toString()));
 						if (rows_total != rows_success)
-							throw new TSLoadUtilityException(rows_failed + " Failed Rows. " + rows_dup_omitted + " Rows Duplicated/Omitted. Message: " + errors.toString());
+							throw new TSLoadUtilityException(rows_failed + " Failed Rows. " + rows_dup_omitted + " Rows Duplicated/Omitted. Message: " + errors.toString(),  new Exception(errors.toString()));
 					} catch (Exception e) {
 						System.out.println(e.getMessage());
 					}
 				} catch (JSchException | IOException e) {
-					throw new TSLoadUtilityException(e.getMessage());
+					throw new TSLoadUtilityException(e.getMessage(), e);
 				}
 			} else {
 				try {
@@ -560,7 +561,7 @@ Channel channel=session.openChannel("shell");
 		System.out.println(threadName + " Done");
 	}
 
-	public void retrieve(String database, String table, TSReader reader)
+	public void retrieve(String database, String table, TSReader reader) throws TSLoadUtilityException
 	{
 		//LinkedHashSet<String> records = new LinkedHashSet<>();
 		System.out.println("Starting Read");
@@ -604,7 +605,7 @@ Channel channel=session.openChannel("shell");
 			channel.disconnect();
 			//return records;
 		} catch(JSchException | IOException | InterruptedException e) {
-			e.printStackTrace();
+			throw new TSLoadUtilityException(e.getMessage(), e);
 		}
 	}
 

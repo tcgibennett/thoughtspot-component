@@ -122,6 +122,7 @@ public class ThoughtSpotOutput implements Serializable {
 
 			} catch (TSLoadUtilityException e) {
 				LOG.error(e.getMessage());
+				// TODO: throw new TSLoadUtilityException
 			}
 
 			loaders.add(tsLoadUtility);

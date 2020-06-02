@@ -8,6 +8,7 @@ import org.talend.sdk.component.api.configuration.Option;
 import org.talend.sdk.component.api.configuration.action.Suggestable;
 import org.talend.sdk.component.api.configuration.constraint.Max;
 import org.talend.sdk.component.api.configuration.constraint.Min;
+import org.talend.sdk.component.api.configuration.constraint.Pattern;
 import org.talend.sdk.component.api.configuration.ui.DefaultValue;
 import org.talend.sdk.component.api.configuration.ui.layout.GridLayout;
 import org.talend.sdk.component.api.input.Producer;
@@ -48,19 +49,23 @@ public class ThoughtSpotOutputConfiguration implements Serializable {
 
     @Option
     @Documentation("tsload --bad_records_file <path_to_file>/<file_name>")
+    @Pattern("^(\\/)?([^\\/\0|]+(\\/)?)+$")
     private String badRecordsFile = "";
 
 
     @Option
     @Documentation("tsload --date_format <date_formatmask> see: http://man7.org/linux/man-pages/man3/strptime.3.html")
+    @Pattern("(%[A-Za-z]{1,2})[-/](%[A-Za-z]{1,2})[-/](%[A-Za-z]{1,2})")
     private String dateFormat = "%Y-%m-%d";
 
     @Option
     @Documentation("tsload --date_time_format <date_formatmask> <time_formatmask> see: http://man7.org/linux/man-pages/man3/strptime.3.html")
+    @Pattern("(%[A-Za-z]{1,2})[-/](%[A-Za-z]{1,2})[-/](%[A-Za-z]{1,2})\\s(%[A-Za-z]{1,2}):(%[A-Za-z]{1,2}):(%[A-Za-z]{1,2})")
     private String dateTimeFormat = "%Y-%m-%d %H:%M:%S";
 
     @Option
     @Documentation("tsload --time_format <time_formatmask> see: http://man7.org/linux/man-pages/man3/strptime.3.html")
+    @Pattern("(%[A-Za-z]{1,2}):(%[A-Za-z]{1,2}):(%[A-Za-z]{1,2})")
     private String timeFormat = "%H:%M:%S";
 
     @Option

@@ -127,35 +127,5 @@ public class ThoughtSpotDataset implements Serializable {
         return this;
     }
 
-    public LinkedHashMap<String, String> getTableColumns() {
-    	TSLoadUtility utility = TSLoadUtility.getInstance(this.getDatastore().getHost(), this.getDatastore().getPort(), this.getDatastore().getUsername(), this.getDatastore().getPassword());
-    	LinkedHashMap<String, String> rs = null;
-    	try {
-    		utility.connect();
-    		rs = utility.getTableColumns(this.getDatabase(), this.getSchema(), this.getTable());
-    		utility.disconnect();
-    	} catch(Exception e) {
-    		LOG.error("TS:: " + e.getMessage());
-    	}
-    	
-    	return rs;
-    }
     
-    
-    
-    private String getColumnNames(Schema schema)
-    {
-    	StringBuilder buff = new StringBuilder();
-    	int i = 1;
-		for (Schema.Entry entry : schema.getEntries())
-		{
-			if (i == schema.getEntries().size())
-				buff.append(entry.getName());
-			else
-				buff.append(entry.getName()+",");
-			i++;
-		}
-		
-		return buff.toString();
-    }
 }

@@ -15,7 +15,7 @@ public class Table {
 
 	@Override
 	public String toString() {
-		StringBuffer buff = new StringBuffer();
+		StringBuilder buff = new StringBuilder();
 		int idx = 0;
 		for (String field : fields)
 		{
