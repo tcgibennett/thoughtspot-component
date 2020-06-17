@@ -422,12 +422,12 @@ Channel channel=session.openChannel("shell");
 		String threadName = writer.register(this.getClass().getSimpleName(),ThreadStatus.RUNNING);
 		while (!writer.getIsCompleted() || writer.size() > 0) {
 			recs.setLength(0);
-			System.out.println(threadName + " Outer Loop");
+			//System.out.println(threadName + " Outer Loop");
 			while (counter <= commit && writer.size() > 0)
 			{
-				System.out.println(threadName + " Inner Loop, Counter " + counter);
+				//System.out.println(threadName + " Inner Loop, Counter " + counter);
 				if (counter % 100 == 0)
-					System.out.println(threadName + " Inner Loop, Counter " + counter);
+					System.out.println(threadName + ": Records " + counter);
 				if (writer.size() == 0) {
 					try {
 						Thread.sleep(100);
@@ -447,9 +447,9 @@ Channel channel=session.openChannel("shell");
 				recs.append(rec + "\n");
 			}*/
 			String recsToLoad = recs.toString();
-			System.out.println(recsToLoad);
+			//System.out.println(recsToLoad);
 			if (recsToLoad.length() > 0) {
-				System.out.println(threadName + " Amount to load " + recsToLoad.length());
+				//System.out.println(threadName + " Amount to load " + recsToLoad.length());
 
 				try {
 					Channel channel = session.openChannel("exec");
