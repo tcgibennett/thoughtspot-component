@@ -100,7 +100,7 @@ public class ThoughtSpotSource implements Serializable {
         String[] keys = schema.keySet().toArray(new String[0]);
 
         String result = null;
-        while(true)
+        while(!tsReader.getIsCompleted())
         {
             result = tsReader.poll();
 
@@ -169,6 +169,8 @@ public class ThoughtSpotSource implements Serializable {
                 }
             }
         }
+        executorService.shutdown();
+        return null;
     }
 
     @PreDestroy

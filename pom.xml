@@ -36,9 +36,15 @@
 
   <dependencies>
     <dependency>
+      <groupId>org.junit.jupiter</groupId>
+      <artifactId>junit-jupiter-params</artifactId>
+      <version>5.5.1</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
       <groupId>org.talend.sdk.component</groupId>
       <artifactId>component-api</artifactId>
-      <version>1.1.12</version>
+      <version>1.1.20</version>
       <scope>provided</scope>
     </dependency>
     <dependency>
@@ -51,7 +57,25 @@
 	    <groupId>com.jcraft</groupId>
 	    <artifactId>jsch</artifactId>
 	    <version>0.1.55</version>
-	</dependency>
+  </dependency>
+  <dependency>
+    <groupId>org.talend.sdk.component</groupId>
+    <artifactId>component-runtime-http-junit</artifactId>
+    <version>1.1.20</version>
+    <scope>test</scope>
+  </dependency>
+  <dependency>
+    <groupId>org.talend.sdk.component</groupId>
+    <artifactId>component-runtime-junit</artifactId>
+    <version>1.1.20</version>
+    <scope>test</scope>
+  </dependency>
+  <dependency>
+    <groupId>org.mybatis</groupId>
+    <artifactId>mybatis</artifactId>
+    <version>3.4.5</version>
+    <scope>test</scope>
+  </dependency>
   </dependencies>
 
   <build>
@@ -59,7 +83,7 @@
       <extension>
         <groupId>org.talend.sdk.component</groupId>
         <artifactId>talend-component-maven-plugin</artifactId>
-        <version>1.1.12</version>
+        <version>1.1.15</version>
       </extension>
     </extensions>
 
@@ -67,7 +91,7 @@
       <plugin>
         <groupId>org.talend.sdk.component</groupId>
         <artifactId>talend-component-maven-plugin</artifactId>
-        <version>1.1.12</version>
+        <version>1.1.15</version>
         <executions>
           <execution>
             <id>talend-component-bundle</id>

@@ -11,7 +11,6 @@ import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-import com.thoughtspot.load_utility.TSReader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import javax.annotation.PostConstruct;
@@ -28,7 +27,7 @@ import org.talend.sdk.component.api.processor.Input;
 import org.talend.sdk.component.api.processor.Processor;
 import org.talend.sdk.component.api.record.Record;
 import org.talend.sdk.component.api.record.Schema;
-
+import com.thoughtspot.load_utility.TSWriter;
 import com.thoughtspot.load_utility.TSLoadUtility;
 import com.thoughtspot.load_utility.TSLoadUtilityException;
 import com.thoughtspot.talend.components.service.ThoughtspotComponentService;
@@ -48,10 +47,10 @@ public class ThoughtSpotOutput implements Serializable {
 	private boolean createDatabase = false;
 	private boolean createSchema = false;
 	private LinkedHashMap<String, String> ts_schema = null;
-	private TSReader tsReader = null;
+	private TSWriter tswriter = null;
 	private List<ExecutorService> threads = new ArrayList<ExecutorService>();
 	private List<TSLoadUtility> loaders = new ArrayList<TSLoadUtility>();
-	private final int _MAX_TSLOADER_THREADS = 5;
+	private int _MAX_TSLOADER_THREADS = 5;
 	private boolean truncateTable = false;
     public ThoughtSpotOutput(@Option("configuration") final ThoughtSpotOutputConfiguration configuration,
                           final ThoughtspotComponentService service) {
@@ -61,6 +60,7 @@ public class ThoughtSpotOutput implements Serializable {
 
     @PostConstruct
     public void init() {
+
         // this method will be executed once for the whole component execution,
         // this is where you can establish a connection for instance
         // Note: if you don't need it you can delete it
@@ -106,8 +106,8 @@ public class ThoughtSpotOutput implements Serializable {
     	{
     		LOG.error("TSLoadUtilityException " + e.getMessage());
     	}
-		tsReader = TSReader.newInstance();
-		for (int x = 0; x < _MAX_TSLOADER_THREADS; x++)
+		tswriter = TSWriter.newInstance();
+		for (int x = 0; x < this._MAX_TSLOADER_THREADS; x++)
 		{
 			threads.add(Executors.newSingleThreadExecutor());
 			TSLoadUtility tsLoadUtility = TSLoadUtility.getInstance(this.configuration.getDataset().getDatastore().getHost(),this.configuration.getDataset().getDatastore().getPort(),this.configuration.getDataset().getDatastore().getUsername(),this.configuration.getDataset().getDatastore().getPassword());
@@ -136,7 +136,7 @@ public class ThoughtSpotOutput implements Serializable {
 				public void run() {
 					try {
 						TSLoadUtility loadUtility = loaders.remove(0);
-						loadUtility.loadData(tsReader,2000);
+						loadUtility.loadData(tswriter,2000);
 						loadUtility.disconnect();
 					} catch (TSLoadUtilityException e) {
 						LOG.error(e.getMessage());
@@ -220,8 +220,8 @@ public class ThoughtSpotOutput implements Serializable {
     	if (this.records.size() > 0)
     		this.insertRecords(records);
 
-		this.tsReader.setIsCompleted(true);
-		while(!this.tsReader.done())
+		this.tswriter.setIsCompleted(true);
+		while(!this.tswriter.done())
 		{
 			try {
 				Thread.sleep(1000);
@@ -329,7 +329,7 @@ public class ThoughtSpotOutput implements Serializable {
 				}
 			//System.out.println(table.toString());
     		//recs.add(table.toString());
-				this.tsReader.add(table.toString());
+				this.tswriter.add(table.toString());
     		
     	}
 

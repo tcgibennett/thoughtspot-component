@@ -416,28 +416,28 @@ Channel channel=session.openChannel("shell");
 		}
 	}
 	
-	public void loadData(TSReader reader, int commit) throws TSLoadUtilityException {
+	public void loadData(TSWriter writer, int commit) throws TSLoadUtilityException {
 		StringBuilder recs = new StringBuilder();
 		int counter = 1;
-		String threadName = reader.register(this.getClass().getSimpleName(),ThreadStatus.RUNNING);
-		while (!reader.getIsCompleted() || reader.size() > 0) {
+		String threadName = writer.register(this.getClass().getSimpleName(),ThreadStatus.RUNNING);
+		while (!writer.getIsCompleted() || writer.size() > 0) {
 			recs.setLength(0);
 			System.out.println(threadName + " Outer Loop");
-			while (counter <= commit && reader.size() > 0)
+			while (counter <= commit && writer.size() > 0)
 			{
 				System.out.println(threadName + " Inner Loop, Counter " + counter);
 				if (counter % 100 == 0)
 					System.out.println(threadName + " Inner Loop, Counter " + counter);
-				if (reader.size() == 0) {
+				if (writer.size() == 0) {
 					try {
 						Thread.sleep(100);
 					} catch (InterruptedException e) {
 						System.out.println(e.getMessage());
 					}
 				}
-				if (reader.size() > 0)
+				if (writer.size() > 0)
 				{
-					recs.append(reader.poll()+"\n");
+					recs.append(writer.poll()+"\n");
 					counter++;
 				}
 			}
@@ -447,6 +447,7 @@ Channel channel=session.openChannel("shell");
 				recs.append(rec + "\n");
 			}*/
 			String recsToLoad = recs.toString();
+			System.out.println(recsToLoad);
 			if (recsToLoad.length() > 0) {
 				System.out.println(threadName + " Amount to load " + recsToLoad.length());
 
@@ -477,7 +478,7 @@ Channel channel=session.openChannel("shell");
 					//channel.setOutputStream(System.out);
 					channel.connect();
 
-					System.out.println(threadName + " Data sent to TS Server");
+					System.out.println(threadName + " Sending to TS Server");
 
 					byte[] tmp = new byte[1024];
 					StringBuilder results = new StringBuilder();
@@ -507,7 +508,7 @@ Channel channel=session.openChannel("shell");
 						}
 					}
 
-					System.out.println(threadName + " Data Sent to Server");
+					System.out.println(threadName + " Data Sent to TS Server");
 
 					channel.disconnect();
 
@@ -557,7 +558,7 @@ Channel channel=session.openChannel("shell");
 				} catch(InterruptedException e) {}
 			}
 		}
-		reader.update(threadName,ThreadStatus.DONE);
+		writer.update(threadName,ThreadStatus.DONE);
 		System.out.println(threadName + " Done");
 	}
 
