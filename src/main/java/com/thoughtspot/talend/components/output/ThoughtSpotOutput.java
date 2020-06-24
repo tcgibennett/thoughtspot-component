@@ -296,7 +296,8 @@ public class ThoughtSpotOutput implements Serializable {
 									table.add(String.valueOf(record.getInt(entry.getName())), i++);
 									//System.out.println(key +"--"+ts_schema.get(key)+"--"+entry.getType());
 									break;
-								} else if (ts_schema.get(key).equalsIgnoreCase("int32")) {
+								} else if (ts_schema.get(key).equalsIgnoreCase("int32") || 
+								ts_schema.get(key).equalsIgnoreCase("int")) {
 									table.add(String.valueOf(record.getInt(entry.getName())), i++);
 									//System.out.println(key +"--"+ts_schema.get(key)+"--"+entry.getType());
 									break;
@@ -304,7 +305,8 @@ public class ThoughtSpotOutput implements Serializable {
 									table.add(String.valueOf(record.getFloat(entry.getName())), i++);
 									//System.out.println(key +"--"+ts_schema.get(key)+"--"+entry.getType());
 									break;
-								} else if (ts_schema.get(key).equalsIgnoreCase("bigint")) {
+								} else if (ts_schema.get(key).equalsIgnoreCase("bigint") || 
+								ts_schema.get(key).equalsIgnoreCase("int64")) {
 									table.add(String.valueOf(record.getLong(entry.getName())), i++);
 									//System.out.println(key +"--"+ts_schema.get(key)+"--"+entry.getType());
 									break;
@@ -314,13 +316,15 @@ public class ThoughtSpotOutput implements Serializable {
 									break;
 								} else if (ts_schema.get(key).equalsIgnoreCase("date") ||
 										ts_schema.get(key).equalsIgnoreCase("datetime") ||
-										ts_schema.get(key).equalsIgnoreCase("time")) {
+										ts_schema.get(key).equalsIgnoreCase("time") || 
+										ts_schema.get(key).equalsIgnoreCase("timestamp")) {
 									table.add(record.getDateTime(entry.getName()).toLocalDateTime().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME).replace('T', ' '), i++);
 									//System.out.println(key +"--"+ts_schema.get(key)+"--"+entry.getType());
 									break;
 								} else {
-									table.add(String.valueOf(record.getDateTime(entry.getName())), i++);
+									//table.add(String.valueOf(record.getDateTime(entry.getName())), i++);
 									//System.out.println(key +"--"+ts_schema.get(key)+"--"+entry.getType());
+									LOG.error("Unknown ThoughtSpot Data Type: " + ts_schema.get(key));
 									break;
 								}
 							}
