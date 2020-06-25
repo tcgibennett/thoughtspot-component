@@ -422,12 +422,12 @@ Channel channel=session.openChannel("shell");
 		String threadName = writer.register(this.getClass().getSimpleName(),ThreadStatus.RUNNING);
 		while (!writer.getIsCompleted() || writer.size() > 0) {
 			recs.setLength(0);
-			//System.out.println(threadName + " Outer Loop");
+			LOG.info(threadName + " Outer Loop");
 			while (counter <= commit && writer.size() > 0)
 			{
-				//System.out.println(threadName + " Inner Loop, Counter " + counter);
+				LOG.info(threadName + " Inner Loop, Counter " + counter);
 				if (counter % 100 == 0)
-					System.out.println(threadName + ": Records " + counter);
+					LOG.info(threadName + ": Records " + counter);
 				if (writer.size() == 0) {
 					try {
 						Thread.sleep(100);
@@ -478,7 +478,7 @@ Channel channel=session.openChannel("shell");
 					//channel.setOutputStream(System.out);
 					channel.connect();
 
-					System.out.println(threadName + " Sending to TS Server");
+					LOG.info(threadName + " Sending to TS Server");
 
 					byte[] tmp = new byte[1024];
 					StringBuilder results = new StringBuilder();
@@ -504,11 +504,11 @@ Channel channel=session.openChannel("shell");
 							Thread.sleep(1000);
 							//System.out.println(threadName + " Wake");
 						} catch (Exception ee) {
-							System.out.println(ee.getMessage());
+							LOG.info(ee.getMessage());
 						}
 					}
 
-					System.out.println(threadName + " Data Sent to TS Server");
+					LOG.info(threadName + " Data Sent to TS Server");
 
 					channel.disconnect();
 
@@ -547,7 +547,7 @@ Channel channel=session.openChannel("shell");
 						if (rows_total != rows_success)
 							throw new TSLoadUtilityException(rows_failed + " Failed Rows. " + rows_dup_omitted + " Rows Duplicated/Omitted. Message: " + errors.toString(),  new Exception(errors.toString()));
 					} catch (Exception e) {
-						System.out.println(e.getMessage());
+						LOG.info(e.getMessage());
 					}
 				} catch (JSchException | IOException e) {
 					throw new TSLoadUtilityException(e.getMessage(), e);

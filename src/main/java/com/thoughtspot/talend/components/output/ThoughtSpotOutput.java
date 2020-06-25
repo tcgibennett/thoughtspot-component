@@ -61,6 +61,7 @@ public class ThoughtSpotOutput implements Serializable {
     @PostConstruct
     public void init() {
 		this._MAX_TSLOADER_THREADS = this.configuration.getMaxWriterThreads();
+		LOG.info("Max Loader Threads " + this._MAX_TSLOADER_THREADS);
         // this method will be executed once for the whole component execution,
         // this is where you can establish a connection for instance
         // Note: if you don't need it you can delete it
@@ -207,7 +208,8 @@ public class ThoughtSpotOutput implements Serializable {
     @AfterGroup
     public void afterGroup() {
         // symmetric method of the beforeGroup() executed after the chunk processing
-        // Note: if you don't need it you can delete it
+		// Note: if you don't need it you can delete it
+		LOG.info("afterGroup()");
 		this.insertRecords(records);
 		this.records.clear();
     }
@@ -216,7 +218,8 @@ public class ThoughtSpotOutput implements Serializable {
     public void release() {
         // this is the symmetric method of the init() one,
         // release potential connections you created or data you cached
-        // Note: if you don't need it you can delete it
+		// Note: if you don't need it you can delete it
+		LOG.info("release()");
     	if (this.records.size() > 0)
     		this.insertRecords(records);
 
