@@ -21,6 +21,7 @@ import org.talend.sdk.component.api.service.record.RecordBuilderFactory;
     // the generated layout put one configuration entry per line,
     // customize it as much as needed
     @GridLayout.Row({ "dataset" }),
+        @GridLayout.Row({"maxWriterThreads"}),
         @GridLayout.Row({"truncate","maxIgnoredRows"}),
         @GridLayout.Row({"badRecordsFile","dateFormat"}),
         @GridLayout.Row({"dateTimeFormat", "timeFormat"}),
@@ -37,6 +38,12 @@ public class ThoughtSpotOutputConfiguration implements Serializable {
     @Option
     @Documentation("The Dataset Object that represents the Table and Schema values")
     private ThoughtSpotDataset dataset;
+
+    @Option
+    @Documentation("Number of Writer Threads")
+    @Min(1)
+    @Max(5)
+    private int maxWriterThreads = 1;
 
     @Option
     @Documentation("tsload --empty_target")
@@ -108,6 +115,16 @@ public class ThoughtSpotOutputConfiguration implements Serializable {
         return this;
     }
 
+    public int getMaxWriterThreads()
+    {
+        return this.maxWriterThreads;
+    }
+
+    public ThoughtSpotOutputConfiguration setMaxWriterThreads(int maxWriterThreads)
+    {
+        this.maxWriterThreads = maxWriterThreads;
+        return this;
+    }
     public int getMaxIgnoredRows() {
         return maxIgnoredRows;
     }

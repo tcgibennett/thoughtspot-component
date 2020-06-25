@@ -50,7 +50,7 @@ public class ThoughtSpotOutput implements Serializable {
 	private TSWriter tswriter = null;
 	private List<ExecutorService> threads = new ArrayList<ExecutorService>();
 	private List<TSLoadUtility> loaders = new ArrayList<TSLoadUtility>();
-	private int _MAX_TSLOADER_THREADS = 5;
+	private int _MAX_TSLOADER_THREADS = 1;
 	private boolean truncateTable = false;
     public ThoughtSpotOutput(@Option("configuration") final ThoughtSpotOutputConfiguration configuration,
                           final ThoughtspotComponentService service) {
@@ -60,7 +60,7 @@ public class ThoughtSpotOutput implements Serializable {
 
     @PostConstruct
     public void init() {
-
+		this._MAX_TSLOADER_THREADS = this.configuration.getMaxWriterThreads();
         // this method will be executed once for the whole component execution,
         // this is where you can establish a connection for instance
         // Note: if you don't need it you can delete it
