@@ -72,7 +72,7 @@ public class TSLoadUtility {
 		sb.append(table);
 		sb.append(" --max_ignored_rows ");
 		sb.append(maxIgnoreRows);
-		if (badRecordsFile.trim().length() > 0) {
+		if (badRecordsFile != null && badRecordsFile.trim().length() > 0) {
 			sb.append(" --bad_records_file ");
 			sb.append(badRecordsFile);
 		}

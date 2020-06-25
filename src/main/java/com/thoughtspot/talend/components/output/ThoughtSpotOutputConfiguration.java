@@ -50,7 +50,7 @@ public class ThoughtSpotOutputConfiguration implements Serializable {
     @Option
     @Documentation("tsload --bad_records_file <path_to_file>/<file_name>")
     @Pattern("^(\\/)?([^\\/\0|]+(\\/)?)+$")
-    private String badRecordsFile = "";
+    private String badRecordsFile;
 
 
     @Option

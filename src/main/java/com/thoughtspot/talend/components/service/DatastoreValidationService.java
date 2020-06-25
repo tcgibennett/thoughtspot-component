@@ -96,7 +96,7 @@ public class DatastoreValidationService {
     		}
     		conn.disconnect();	
     	} catch(Exception e) {
-    		throw new IllegalArgumentException(e.getMessage());
+    		return databases;
     	}
     	
     	return databases;
@@ -114,7 +114,7 @@ public class DatastoreValidationService {
     		}
     		conn.disconnect();	
     	} catch(Exception e) {
-    		throw new IllegalArgumentException(e.getMessage());
+    		return schemas;
     	}
     	
     	return schemas;
@@ -132,7 +132,7 @@ public class DatastoreValidationService {
     		}
     		conn.disconnect();	
     	} catch(Exception e) {
-    		throw new IllegalArgumentException(e.getMessage());
+    		return tables;
     	}
     	
     	return tables;
