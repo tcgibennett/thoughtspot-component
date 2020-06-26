@@ -21,12 +21,11 @@ import org.talend.sdk.component.api.service.record.RecordBuilderFactory;
     // the generated layout put one configuration entry per line,
     // customize it as much as needed
     @GridLayout.Row({ "dataset" }),
-        @GridLayout.Row({"maxWriterThreads"}),
-        @GridLayout.Row({"truncate","maxIgnoredRows"}),
-        @GridLayout.Row({"badRecordsFile","dateFormat"}),
-        @GridLayout.Row({"dateTimeFormat", "timeFormat"}),
-        @GridLayout.Row({"verbosity", "skipSecondFraction"}),
-        @GridLayout.Row({"dateConvertedToEpoch","booleanRepresentation"})
+        @GridLayout.Row({"maxWriterThreads", "truncate"}),
+        @GridLayout.Row({"badRecordsFile", "maxIgnoredRows"}),
+        @GridLayout.Row({"dateFormat", "dateTimeFormat"}),
+        @GridLayout.Row({"timeFormat", "verbosity"}),
+        @GridLayout.Row({"skipSecondFraction","booleanRepresentation"})
 })
 
 @Documentation("TODO fill the documentation for this configuration")
@@ -87,7 +86,7 @@ public class ThoughtSpotOutputConfiguration implements Serializable {
 
     @Option
     @Documentation("tsload --date_converted_to_epoch")
-    private boolean dateConvertedToEpoch = false;
+    private boolean dateConvertedToEpoch = true;
 
     @Option
     @Documentation("tsload --boolean_representation")

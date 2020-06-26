@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Set;
+import java.util.TimeZone;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -38,7 +39,8 @@ import com.thoughtspot.talend.components.service.ThoughtspotComponentService;
 @Documentation("TODO fill the documentation for this processor")
 public class ThoughtSpotOutput implements Serializable {
     private final ThoughtSpotOutputConfiguration configuration;
-    private final ThoughtspotComponentService service;
+	private final ThoughtspotComponentService service;
+	private final TimeZone tz = TimeZone.getDefault();
 	private static final transient Logger LOG = LoggerFactory.getLogger(ThoughtSpotOutput.class);
     private List<Record> records = null;
     private TSLoadUtility tsloader = null;
@@ -317,11 +319,22 @@ public class ThoughtSpotOutput implements Serializable {
 									table.add(String.valueOf(record.getBoolean(entry.getName())), i++);
 									//System.out.println(key +"--"+ts_schema.get(key)+"--"+entry.getType());
 									break;
-								} else if (ts_schema.get(key).equalsIgnoreCase("date") ||
-										ts_schema.get(key).equalsIgnoreCase("datetime") ||
-										ts_schema.get(key).equalsIgnoreCase("time") || 
+								} else if (ts_schema.get(key).equalsIgnoreCase("date")) {
+									//this will convert the date to Epoch
+									long dateNumeric = record.getDateTime(entry.getName()).toLocalDate().toEpochDay() * 86400;
+									table.add(Long.toString(dateNumeric),i++);
+									break;
+								} else if (ts_schema.get(key).equalsIgnoreCase("datetime") ||
 										ts_schema.get(key).equalsIgnoreCase("timestamp")) {
-									table.add(record.getDateTime(entry.getName()).toLocalDateTime().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME).replace('T', ' '), i++);
+											int offset = Math.abs(tz.getRawOffset() / 1000);
+											long dateNumeric = record.getDateTime(entry.getName()).toEpochSecond();
+											table.add(Long.toString(dateNumeric-offset), i++);
+										break;
+								} else if (ts_schema.get(key).equalsIgnoreCase("time")) {
+									int offset = Math.abs(tz.getRawOffset() / 1000);
+									int timeNumeric = record.getDateTime(entry.getName()).toLocalTime().toSecondOfDay();
+
+									table.add(Integer.toString(timeNumeric - offset), i++);
 									//System.out.println(key +"--"+ts_schema.get(key)+"--"+entry.getType());
 									break;
 								} else {
