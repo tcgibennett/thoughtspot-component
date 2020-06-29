@@ -3,6 +3,7 @@ package com.thoughtspot.talend.components.output;
 import java.io.Serializable;
 import java.sql.Connection;
 import java.sql.Statement;
+import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -275,6 +276,23 @@ public class ThoughtSpotOutput implements Serializable {
 		}
 	}
 
+	private ZonedDateTime handleOlderLibrary(Record record, String field)
+	{
+		ZonedDateTime zdt = null;
+		try {
+			String tv = record.getString(field);
+			if (tv.indexOf("UTC") == -1)
+				zdt = ZonedDateTime.parse(tv+"Z[UTC]");
+			else
+				zdt = ZonedDateTime.parse(tv);
+		} catch(IllegalArgumentException e)
+		{
+			zdt = record.getDateTime(field);
+		}
+		
+
+		return zdt;
+	}
     private void insertRecords(List<Record> records) {
     	StringBuilder rec = null;
     	Table table = null;
@@ -321,18 +339,21 @@ public class ThoughtSpotOutput implements Serializable {
 									break;
 								} else if (ts_schema.get(key).equalsIgnoreCase("date")) {
 									//this will convert the date to Epoch
-									long dateNumeric = record.getDateTime(entry.getName()).toLocalDate().toEpochDay() * 86400;
+									ZonedDateTime zdt = handleOlderLibrary(record, entry.getName());
+									long dateNumeric = zdt.toLocalDate().toEpochDay() * 86400;//record.getDateTime(entry.getName()).toLocalDate().toEpochDay() * 86400;
 									table.add(Long.toString(dateNumeric),i++);
 									break;
 								} else if (ts_schema.get(key).equalsIgnoreCase("datetime") ||
 										ts_schema.get(key).equalsIgnoreCase("timestamp")) {
 											int offset = Math.abs(tz.getRawOffset() / 1000);
-											long dateNumeric = record.getDateTime(entry.getName()).toEpochSecond();
+											ZonedDateTime zdt = handleOlderLibrary(record, entry.getName());
+											long dateNumeric = zdt.toEpochSecond();//record.getDateTime(entry.getName()).toEpochSecond();
 											table.add(Long.toString(dateNumeric-offset), i++);
 										break;
 								} else if (ts_schema.get(key).equalsIgnoreCase("time")) {
 									int offset = Math.abs(tz.getRawOffset() / 1000);
-									int timeNumeric = record.getDateTime(entry.getName()).toLocalTime().toSecondOfDay();
+									ZonedDateTime zdt = handleOlderLibrary(record, entry.getName());
+									int timeNumeric = zdt.toLocalTime().toSecondOfDay();//record.getDateTime(entry.getName()).toLocalTime().toSecondOfDay();
 
 									table.add(Integer.toString(timeNumeric - offset), i++);
 									//System.out.println(key +"--"+ts_schema.get(key)+"--"+entry.getType());
