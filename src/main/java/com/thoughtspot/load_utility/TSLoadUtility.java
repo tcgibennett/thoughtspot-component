@@ -447,6 +447,7 @@ Channel channel=session.openChannel("shell");
 				recs.append(rec + "\n");
 			}*/
 			String recsToLoad = recs.toString();
+			LOG.info(recsToLoad);
 			//System.out.println(recsToLoad);
 			if (recsToLoad.length() > 0) {
 				//System.out.println(threadName + " Amount to load " + recsToLoad.length());

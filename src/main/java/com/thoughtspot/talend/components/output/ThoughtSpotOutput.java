@@ -368,7 +368,7 @@ public class ThoughtSpotOutput implements Serializable {
 						}
 					}
 				}
-			//System.out.println(table.toString());
+			LOG.info(table.toString());
     		//recs.add(table.toString());
 				this.tswriter.add(table.toString());
     		
