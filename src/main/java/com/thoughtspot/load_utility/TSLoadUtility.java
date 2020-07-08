@@ -432,7 +432,7 @@ Channel channel=session.openChannel("shell");
 					try {
 						Thread.sleep(100);
 					} catch (InterruptedException e) {
-						System.out.println(e.getMessage());
+						LOG.error(e.getMessage());
 					}
 				}
 				if (writer.size() > 0)
@@ -467,8 +467,8 @@ Channel channel=session.openChannel("shell");
 					((ChannelExec) channel).setErrStream(System.err);
 
 					PipedOutputStream pos = new PipedOutputStream();
-					// 131072 is for the PIS to process 128 KB of data at a time
-					PipedInputStream pis = new PipedInputStream(pos, 131072);
+					// getting the size of the compressed payload so only single write to server
+					PipedInputStream pis = new PipedInputStream(pos, byteStream.toByteArray().length);
 					channel.setInputStream(pis);
 
 					pos.write(byteStream.toByteArray());
