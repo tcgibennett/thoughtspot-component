@@ -25,7 +25,8 @@ import org.talend.sdk.component.api.service.record.RecordBuilderFactory;
         @GridLayout.Row({"badRecordsFile", "maxIgnoredRows"}),
         @GridLayout.Row({"dateFormat", "dateTimeFormat"}),
         @GridLayout.Row({"timeFormat", "verbosity"}),
-        @GridLayout.Row({"skipSecondFraction","booleanRepresentation"})
+        @GridLayout.Row({"skipSecondFraction","booleanRepresentation"}),
+        @GridLayout.Row({"escapeCharacter","enclosingCharacter"})
 })
 
 @Documentation("TODO fill the documentation for this configuration")
@@ -92,6 +93,14 @@ public class ThoughtSpotOutputConfiguration implements Serializable {
     @Documentation("tsload --boolean_representation")
     @Suggestable(value = "showBooleanRepresentation")
     private String booleanRepresentation = "T_F";
+
+    @Option
+    @Documentation("tsload --escape_character")
+    private String escapeCharacter = "";
+
+    @Option
+    @Documentation("tsload --enclosing_character")
+    private String enclosingCharacter = "";
 
 
 
@@ -214,7 +223,24 @@ public class ThoughtSpotOutputConfiguration implements Serializable {
         return this;
     }
 
-    
+    public ThoughtSpotOutputConfiguration setEscapeCharacter(String escape_character)
+    {
+        this.escapeCharacter = escape_character;
+        return this;
+    }
+
+    public String getEscapeCharacter() {
+        return this.escapeCharacter;
+    }
+
+    public ThoughtSpotOutputConfiguration setEnclosingCharacter(String enclosing_character) {
+        this.enclosingCharacter = enclosing_character;
+        return this;
+    }
+
+    public String getEnclosingCharacter() {
+        return this.enclosingCharacter;
+    }
 
 
     

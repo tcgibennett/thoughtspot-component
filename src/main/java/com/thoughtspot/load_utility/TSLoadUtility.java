@@ -62,7 +62,8 @@ public class TSLoadUtility {
 	
 	public void setTSLoadProperties(String database, String schema, String table, int maxIgnoreRows, 
 	String badRecordsFile, String date_format, String date_time_format, String time_format, int verbosity,
-	boolean skip_second_fraction, String field_separator, boolean date_converted_to_epoch, String boolean_representation) {
+	boolean skip_second_fraction, String field_separator, boolean date_converted_to_epoch, String boolean_representation,
+	String escape_character, String enclosing_character) {
 		StringBuilder sb = new StringBuilder();
 		sb.append("gzip -dc | tsload --target_database ");
 		sb.append(database);
@@ -92,6 +93,14 @@ public class TSLoadUtility {
 		sb.append(" --boolean_representation ");
 		sb.append(boolean_representation);
 		sb.append(" --null_value ''");
+		if (escape_character.trim().length() > 0) {
+			sb.append(" --escape_character ");
+			sb.append("\""+escape_character+"\"");
+		}
+		if (enclosing_character.trim().length() > 0) {
+			sb.append(" --enclosing_character ");
+			sb.append("\""+enclosing_character+"\"");
+		}
 		this.command = sb.toString();
 	}
 	

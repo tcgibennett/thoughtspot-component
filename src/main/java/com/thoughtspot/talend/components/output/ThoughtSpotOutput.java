@@ -103,7 +103,8 @@ public class ThoughtSpotOutput implements Serializable {
 			this.configuration.getMaxIgnoredRows(), this.configuration.getBadRecordsFile(),
 			this.configuration.getDateFormat(), this.configuration.getDateTimeFormat(), 
 			this.configuration.getTimeFormat(), this.configuration.getVerbosity(), this.configuration.skipSecondFraction(),
-			",", this.configuration.getDateConvertedToEpoch(), this.configuration.getBooleanRepresentation());
+			",", this.configuration.getDateConvertedToEpoch(), this.configuration.getBooleanRepresentation(),
+			this.configuration.getEscapeCharacter(), this.configuration.getEnclosingCharacter());
 
 			LOG.info("ThoughtSpot::Set Load Properties");
     	} catch(TSLoadUtilityException e)
@@ -122,7 +123,8 @@ public class ThoughtSpotOutput implements Serializable {
 				this.configuration.getMaxIgnoredRows(), this.configuration.getBadRecordsFile(),
 				this.configuration.getDateFormat(), this.configuration.getDateTimeFormat(), 
 				this.configuration.getTimeFormat(), this.configuration.getVerbosity(), this.configuration.skipSecondFraction(),
-				",", this.configuration.getDateConvertedToEpoch(), this.configuration.getBooleanRepresentation());
+				",", this.configuration.getDateConvertedToEpoch(), this.configuration.getBooleanRepresentation(),
+				this.configuration.getEscapeCharacter(), this.configuration.getEnclosingCharacter());
 
 			} catch (TSLoadUtilityException e) {
 				LOG.error(e.getMessage());
@@ -305,7 +307,7 @@ public class ThoughtSpotOutput implements Serializable {
 
 				int i = 0;
 				Set<String> keys = ts_schema.keySet();
-			table = new Table(keys.size());
+			table = new Table(keys.size(), this.configuration.getEnclosingCharacter());
 				for (String key : keys) {
 
 					for (Schema.Entry entry : schema.getEntries()) {
