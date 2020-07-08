@@ -99,7 +99,7 @@ public class TSLoadUtility {
 		}
 		if (enclosing_character.trim().length() > 0) {
 			sb.append(" --enclosing_character ");
-			sb.append("\""+enclosing_character+"\"");
+			sb.append("\"\\"+enclosing_character+"\"");
 		}
 		this.command = sb.toString();
 	}
