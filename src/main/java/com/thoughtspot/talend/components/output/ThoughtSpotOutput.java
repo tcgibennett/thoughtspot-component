@@ -314,50 +314,90 @@ public class ThoughtSpotOutput implements Serializable {
 						if (!entry.getName().equals("hashDirtyCode") && !entry.getName().equals("loopKey")) {
 							if (entry.getName().equalsIgnoreCase(key)) {
 								if (ts_schema.get(key).equalsIgnoreCase("varchar")) {
-									table.add(record.getString(entry.getName()), i++);
+									try {
+										table.add(record.getString(entry.getName()), i++);
+									} catch(NullPointerException e)
+									{
+										table.add("", i++);
+									}
+									
 									//System.out.println(key +"--"+ts_schema.get(key)+"--"+entry.getType());
 									break;
 								} else if (ts_schema.get(key).equalsIgnoreCase("double")) {
-									table.add(String.valueOf(record.getInt(entry.getName())), i++);
+									try {
+										table.add(String.valueOf(record.getInt(entry.getName())), i++);
+									} catch (NullPointerException e) {
+										table.add("", i++);
+									}
 									//System.out.println(key +"--"+ts_schema.get(key)+"--"+entry.getType());
 									break;
 								} else if (ts_schema.get(key).equalsIgnoreCase("int32") || 
-								ts_schema.get(key).equalsIgnoreCase("int")) {
-									table.add(String.valueOf(record.getInt(entry.getName())), i++);
+									ts_schema.get(key).equalsIgnoreCase("int")) {
+										try {
+											table.add(String.valueOf(record.getInt(entry.getName())), i++);
+										} catch(NullPointerException e) {
+											table.add("",i++);
+										}
 									//System.out.println(key +"--"+ts_schema.get(key)+"--"+entry.getType());
 									break;
 								} else if (ts_schema.get(key).equalsIgnoreCase("float")) {
-									table.add(String.valueOf(record.getFloat(entry.getName())), i++);
+									try {
+										table.add(String.valueOf(record.getFloat(entry.getName())), i++);
+									} catch(NullPointerException e) {
+										table.add("",i++);
+									}
 									//System.out.println(key +"--"+ts_schema.get(key)+"--"+entry.getType());
 									break;
 								} else if (ts_schema.get(key).equalsIgnoreCase("bigint") || 
 								ts_schema.get(key).equalsIgnoreCase("int64")) {
-									table.add(String.valueOf(record.getLong(entry.getName())), i++);
+									try {
+										table.add(String.valueOf(record.getLong(entry.getName())), i++);
+									} catch(NullPointerException e) {
+										table.add("",i++);
+									}
 									//System.out.println(key +"--"+ts_schema.get(key)+"--"+entry.getType());
 									break;
 								} else if (ts_schema.get(key).equalsIgnoreCase("bool")) {
-									table.add(String.valueOf(record.getBoolean(entry.getName())), i++);
+									try {
+										table.add(String.valueOf(record.getBoolean(entry.getName())), i++);
+									} catch(NullPointerException e) {
+										table.add("",i++);
+									}
 									//System.out.println(key +"--"+ts_schema.get(key)+"--"+entry.getType());
 									break;
 								} else if (ts_schema.get(key).equalsIgnoreCase("date")) {
 									//this will convert the date to Epoch
-									ZonedDateTime zdt = handleOlderLibrary(record, entry.getName());
-									long dateNumeric = zdt.toLocalDate().toEpochDay() * 86400;//record.getDateTime(entry.getName()).toLocalDate().toEpochDay() * 86400;
-									table.add(Long.toString(dateNumeric),i++);
+									try {
+										ZonedDateTime zdt = handleOlderLibrary(record, entry.getName());
+										long dateNumeric = zdt.toLocalDate().toEpochDay() * 86400;//record.getDateTime(entry.getName()).toLocalDate().toEpochDay() * 86400;
+										table.add(Long.toString(dateNumeric),i++);
+									} catch(NullPointerException e)
+									{
+										table.add("", i++);
+									}
 									break;
 								} else if (ts_schema.get(key).equalsIgnoreCase("datetime") ||
 										ts_schema.get(key).equalsIgnoreCase("timestamp")) {
-											int offset = Math.abs(tz.getRawOffset() / 1000);
-											ZonedDateTime zdt = handleOlderLibrary(record, entry.getName());
-											long dateNumeric = zdt.toEpochSecond();//record.getDateTime(entry.getName()).toEpochSecond();
-											table.add(Long.toString(dateNumeric-offset), i++);
+											try {
+												int offset = Math.abs(tz.getRawOffset() / 1000);
+												ZonedDateTime zdt = handleOlderLibrary(record, entry.getName());
+												long dateNumeric = zdt.toEpochSecond();//record.getDateTime(entry.getName()).toEpochSecond();
+												table.add(Long.toString(dateNumeric-offset), i++);
+											} catch(NullPointerException e) {
+												table.add("",i++);
+											}
 										break;
 								} else if (ts_schema.get(key).equalsIgnoreCase("time")) {
-									int offset = Math.abs(tz.getRawOffset() / 1000);
-									ZonedDateTime zdt = handleOlderLibrary(record, entry.getName());
-									int timeNumeric = zdt.toLocalTime().toSecondOfDay();//record.getDateTime(entry.getName()).toLocalTime().toSecondOfDay();
+									try {
+										int offset = Math.abs(tz.getRawOffset() / 1000);
+										ZonedDateTime zdt = handleOlderLibrary(record, entry.getName());
+										int timeNumeric = zdt.toLocalTime().toSecondOfDay();//record.getDateTime(entry.getName()).toLocalTime().toSecondOfDay();
 
-									table.add(Integer.toString(timeNumeric - offset), i++);
+										table.add(Integer.toString(timeNumeric - offset), i++);
+									} catch(NullPointerException e)
+									{
+										table.add("", i++);
+									}
 									//System.out.println(key +"--"+ts_schema.get(key)+"--"+entry.getType());
 									break;
 								} else {
