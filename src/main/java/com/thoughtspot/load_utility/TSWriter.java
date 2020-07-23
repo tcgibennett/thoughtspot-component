@@ -15,7 +15,7 @@ public class TSWriter {
     private int threadCount = 1;
     public static synchronized TSWriter newInstance()
     {
-        if (instance == null)
+        //if (instance == null)
                 instance = new TSWriter();
 
         return instance;

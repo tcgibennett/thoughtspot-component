@@ -39,6 +39,7 @@ import com.thoughtspot.talend.components.service.ThoughtspotComponentService;
 @Processor(name = "Output")
 @Documentation("TODO fill the documentation for this processor")
 public class ThoughtSpotOutput implements Serializable {
+	private static final long serialVersionUID = 7232020L;
     private final ThoughtSpotOutputConfiguration configuration;
 	private final ThoughtspotComponentService service;
 	private final TimeZone tz = TimeZone.getDefault();
@@ -142,7 +143,7 @@ public class ThoughtSpotOutput implements Serializable {
 				public void run() {
 					try {
 						TSLoadUtility loadUtility = loaders.remove(0);
-						loadUtility.loadData(tswriter,2000);
+						loadUtility.loadData(tswriter,configuration.getDataset().getTable(),2000);
 						loadUtility.disconnect();
 					} catch (TSLoadUtilityException e) {
 						LOG.error(e.getMessage());

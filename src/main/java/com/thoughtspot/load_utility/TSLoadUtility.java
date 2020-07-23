@@ -425,10 +425,10 @@ Channel channel=session.openChannel("shell");
 		}
 	}
 	
-	public void loadData(TSWriter writer, int commit) throws TSLoadUtilityException {
+	public void loadData(TSWriter writer,String tableName, int commit) throws TSLoadUtilityException {
 		StringBuilder recs = new StringBuilder();
 		int counter = 1;
-		String threadName = writer.register(this.getClass().getSimpleName(),ThreadStatus.RUNNING);
+		String threadName = writer.register(this.getClass().getSimpleName()+"::"+tableName+"::",ThreadStatus.RUNNING);
 		while (!writer.getIsCompleted() || writer.size() > 0) {
 			recs.setLength(0);
 			LOG.info(threadName + " Outer Loop");
@@ -456,7 +456,7 @@ Channel channel=session.openChannel("shell");
 				recs.append(rec + "\n");
 			}*/
 			String recsToLoad = recs.toString();
-			LOG.info(recsToLoad);
+			//LOG.info(recsToLoad);
 			//System.out.println(recsToLoad);
 			if (recsToLoad.length() > 0) {
 				//System.out.println(threadName + " Amount to load " + recsToLoad.length());

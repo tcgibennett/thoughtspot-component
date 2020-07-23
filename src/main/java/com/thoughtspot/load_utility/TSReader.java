@@ -14,7 +14,7 @@ public class TSReader {
     private int threadCount = 1;
     public static synchronized TSReader newInstance()
     {
-        if (instance == null)
+        //if (instance == null)
                 instance = new TSReader();
 
         return instance;
